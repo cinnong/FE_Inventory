@@ -10,92 +10,119 @@ import FormTambahKategori from "./pages/FormTambahKategori";
 import FormTambahPeminjaman from "./pages/FormTambahPeminjaman";
 import FormEditBarang from "./pages/FormEditBarang";
 import Dashboard from "./pages/Dashboard";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Test from "./pages/Test";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   return (
     <Router>
       <Routes>
+        {/* Public routes */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/test" element={<Test />} />
+
+        {/* Protected routes */}
         <Route
           path="/"
           element={
-            <MainLayout>
-              <Dashboard />
-            </MainLayout>
+            <ProtectedRoute>
+              <MainLayout>
+                <Dashboard />
+              </MainLayout>
+            </ProtectedRoute>
           }
         />
         <Route
           path="/barang"
           element={
-            <MainLayout>
-              <DataBarang />
-            </MainLayout>
+            <ProtectedRoute>
+              <MainLayout>
+                <DataBarang />
+              </MainLayout>
+            </ProtectedRoute>
           }
         />
         <Route
           path="/barang/:id"
           element={
-            <MainLayout>
-              <DetailBarang />
-            </MainLayout>
+            <ProtectedRoute>
+              <MainLayout>
+                <DetailBarang />
+              </MainLayout>
+            </ProtectedRoute>
           }
         />
         <Route
           path="/barang/edit/:id"
           element={
-            <MainLayout>
-              <FormEditBarang />
-            </MainLayout>
+            <ProtectedRoute>
+              <MainLayout>
+                <FormEditBarang />
+              </MainLayout>
+            </ProtectedRoute>
           }
         />
         <Route
           path="/kategori"
           element={
-            <MainLayout>
-              <KategoriList />
-            </MainLayout>
+            <ProtectedRoute>
+              <MainLayout>
+                <KategoriList />
+              </MainLayout>
+            </ProtectedRoute>
           }
         />
         <Route
           path="/peminjaman"
           element={
-            <MainLayout>
-              <PeminjamanList />
-            </MainLayout>
+            <ProtectedRoute>
+              <MainLayout>
+                <PeminjamanList />
+              </MainLayout>
+            </ProtectedRoute>
           }
         />
         <Route
           path="/laporan"
           element={
-            <MainLayout>
-              <LaporanPeminjaman />
-            </MainLayout>
+            <ProtectedRoute>
+              <MainLayout>
+                <LaporanPeminjaman />
+              </MainLayout>
+            </ProtectedRoute>
           }
         />
-
         <Route
           path="/barang/tambah"
           element={
-            <MainLayout>
-              <FormTambahBarang />
-            </MainLayout>
+            <ProtectedRoute>
+              <MainLayout>
+                <FormTambahBarang />
+              </MainLayout>
+            </ProtectedRoute>
           }
         />
-
         <Route
           path="/kategori/tambah"
           element={
-            <MainLayout>
-              <FormTambahKategori />
-            </MainLayout>
+            <ProtectedRoute>
+              <MainLayout>
+                <FormTambahKategori />
+              </MainLayout>
+            </ProtectedRoute>
           }
         />
-
         <Route
           path="/peminjaman/tambah"
           element={
-            <MainLayout>
-              <FormTambahPeminjaman />
-            </MainLayout>
+            <ProtectedRoute>
+              <MainLayout>
+                <FormTambahPeminjaman />
+              </MainLayout>
+            </ProtectedRoute>
           }
         />
       </Routes>

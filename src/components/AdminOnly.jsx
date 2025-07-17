@@ -1,4 +1,3 @@
-// components/AdminOnly.jsx
 import { isAdmin } from "../utils/auth";
 
 /**

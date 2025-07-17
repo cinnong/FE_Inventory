@@ -111,7 +111,6 @@ export default function DataBarang() {
             <thead>
               <tr>
                 <th className="px-4 py-2">No</th>
-                <th className="px-4 py-2">ID</th>
                 <th className="px-4 py-2">Nama</th>
                 <th className="px-4 py-2">Kategori</th>
                 <th className="px-4 py-2">Stok</th>
@@ -122,7 +121,6 @@ export default function DataBarang() {
               {barang.map((item, index) => (
                 <tr key={item.id} className="border-t">
                   <td className="px-4 py-2">{index + 1}</td>
-                  <td className="px-4 py-2">{item.id}</td>
                   <td className="px-4 py-2">{item.nama}</td>
                   <td className="px-4 py-2">
                     {getKategoriNama(item.kategori_id)}

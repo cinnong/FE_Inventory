@@ -82,11 +82,9 @@ export default function Sidebar() {
       {/* User info and logout section */}
       <div className="border-t pt-4 mt-4">
         <div className="mb-3 px-3">
-          <p className="text-sm text-gray-600">Logged in as:</p>
           <p className="font-medium text-gray-900">
             {userInfo?.username || "User"}
           </p>
-          <p className="text-xs text-gray-500">{userInfo?.email}</p>
           <span
             className={`inline-block px-2 py-1 rounded-full text-xs mt-1 ${
               userInfo?.isAdmin

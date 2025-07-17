@@ -1,4 +1,3 @@
-// pages/Test.jsx
 import Input from "../components/atoms/Input";
 import Label from "../components/atoms/Label";
 import Button from "../components/atoms/Button";

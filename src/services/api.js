@@ -135,6 +135,16 @@ export const updateKategori = async (id, data) => {
   }
 };
 
+export const deleteKategori = async (id) => {
+  try {
+    const response = await axios.delete(`${API_BASE_URL}/kategori/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error menghapus kategori:", error);
+    throw error;
+  }
+};
+
 export const getAllPeminjaman = async () => {
   try {
     const response = await axios.get(`${API_BASE_URL}/peminjaman`);
@@ -161,6 +171,16 @@ export const updatePeminjaman = async (id, data) => {
     return response.data;
   } catch (error) {
     console.error("Error mengupdate peminjaman:", error);
+    throw error;
+  }
+};
+
+export const deletePeminjaman = async (id) => {
+  try {
+    const response = await axios.delete(`${API_BASE_URL}/peminjaman/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error menghapus peminjaman:", error);
     throw error;
   }
 };

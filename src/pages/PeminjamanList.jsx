@@ -1,5 +1,9 @@
 import { useEffect, useState } from "react";
-import { getAllPeminjaman, updatePeminjaman } from "../services/api";
+import {
+  getAllPeminjaman,
+  updatePeminjaman,
+  deletePeminjaman,
+} from "../services/api";
 import {
   Card,
   CardBody,
@@ -9,8 +13,9 @@ import {
   Button,
 } from "@material-tailwind/react";
 import { Link } from "react-router-dom";
-import { PencilIcon } from "@heroicons/react/24/outline";
+import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
 import AdminOnly from "../components/AdminOnly";
+import Swal from "sweetalert2";
 
 export default function PeminjamanList() {
   const [data, setData] = useState([]);
@@ -53,6 +58,16 @@ export default function PeminjamanList() {
   const handleSaveEdit = async () => {
     try {
       await updatePeminjaman(form.id, form);
+
+      Swal.fire({
+        icon: "success",
+        title: "Berhasil!",
+        text: "Data peminjaman berhasil diperbarui",
+        confirmButtonColor: "#10b981",
+        timer: 1500,
+        timerProgressBar: true,
+      });
+
       setData((prev) =>
         prev.map((p) => (p.id === form.id ? { ...p, ...form } : p))
       );
@@ -68,6 +83,15 @@ export default function PeminjamanList() {
       });
     } catch (error) {
       console.error("Error mengupdate peminjaman:", error);
+
+      Swal.fire({
+        icon: "error",
+        title: "Gagal Memperbarui",
+        text:
+          error.response?.data?.error ||
+          "Terjadi kesalahan saat memperbarui data peminjaman",
+        confirmButtonColor: "#ef4444",
+      });
     }
   };
 
@@ -82,6 +106,48 @@ export default function PeminjamanList() {
       status: "",
       tanggal_pinjam: "",
     });
+  };
+
+  const handleDelete = async (id, namaPeminjam) => {
+    const result = await Swal.fire({
+      title: "Hapus Peminjaman?",
+      text: `Apakah Anda yakin ingin menghapus data peminjaman "${namaPeminjam}"?`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#ef4444",
+      cancelButtonColor: "#6b7280",
+      confirmButtonText: "Ya, Hapus!",
+      cancelButtonText: "Batal",
+      reverseButtons: true,
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await deletePeminjaman(id);
+
+        Swal.fire({
+          icon: "success",
+          title: "Berhasil!",
+          text: "Data peminjaman berhasil dihapus",
+          confirmButtonColor: "#10b981",
+          timer: 1500,
+          timerProgressBar: true,
+        });
+
+        // Refresh data setelah hapus
+        const res = await getAllPeminjaman();
+        setData(res);
+      } catch (error) {
+        Swal.fire({
+          icon: "error",
+          title: "Gagal Menghapus",
+          text:
+            error.response?.data?.error ||
+            "Terjadi kesalahan saat menghapus data",
+          confirmButtonColor: "#ef4444",
+        });
+      }
+    }
   };
 
   useEffect(() => {
@@ -217,7 +283,6 @@ export default function PeminjamanList() {
             <thead>
               <tr>
                 <th className="px-4 py-2">No</th>
-                <th className="px-4 py-2">ID</th>
                 <th className="px-4 py-2">Nama</th>
                 <th className="px-4 py-2">Email</th>
                 <th className="px-4 py-2">Telepon</th>
@@ -231,7 +296,6 @@ export default function PeminjamanList() {
               {data.map((item, index) => (
                 <tr key={item.id} className="border-t">
                   <td className="px-4 py-2">{index + 1}</td>
-                  <td className="px-4 py-2">{item.id}</td>
                   <td className="px-4 py-2">{item.nama_peminjam}</td>
                   <td className="px-4 py-2">{item.email_peminjam}</td>
                   <td className="px-4 py-2">{item.telepon_peminjam}</td>
@@ -242,12 +306,22 @@ export default function PeminjamanList() {
                     <AdminOnly
                       fallback={<span className="text-gray-400">-</span>}
                     >
-                      <button
-                        onClick={() => handleEdit(item.id)}
-                        className="px-3 py-1 border border-blue-500 text-blue-500 rounded hover:bg-blue-50"
-                      >
-                        <PencilIcon className="h-5 w-5" />
-                      </button>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handleEdit(item.id)}
+                          className="px-3 py-1 border border-blue-500 text-blue-500 rounded hover:bg-blue-50"
+                        >
+                          <PencilIcon className="h-5 w-5" />
+                        </button>
+                        <button
+                          onClick={() =>
+                            handleDelete(item.id, item.nama_peminjam)
+                          }
+                          className="px-3 py-1 border border-red-500 text-red-500 rounded hover:bg-red-50"
+                        >
+                          <TrashIcon className="h-5 w-5" />
+                        </button>
+                      </div>
                     </AdminOnly>
                   </td>
                 </tr>

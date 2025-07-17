@@ -53,13 +53,7 @@ export default function DetailBarang() {
       <Card className="max-w-xl">
         <CardBody>
           <Typography>
-            <strong>ID:</strong> {barang.id}
-          </Typography>
-          <Typography>
             <strong>Nama:</strong> {barang.nama}
-          </Typography>
-          <Typography>
-            <strong>Kategori ID:</strong> {barang.kategori_id}
           </Typography>
           <Typography>
             <strong>Stok:</strong> {barang.stok}

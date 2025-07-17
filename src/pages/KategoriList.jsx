@@ -1,16 +1,20 @@
 import { useEffect, useState } from "react";
-import { getAllKategori, updateKategori } from "../services/api";
+import {
+  getAllKategori,
+  updateKategori,
+  deleteKategori,
+} from "../services/api";
 import {
   Card,
   CardBody,
   Typography,
   Spinner,
   Button,
-  Alert,
 } from "@material-tailwind/react";
 import { Link } from "react-router-dom";
-import { PencilIcon } from "@heroicons/react/24/outline";
+import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
 import AdminOnly from "../components/AdminOnly";
+import Swal from "sweetalert2";
 
 export default function KategoriList() {
   const [kategori, setKategori] = useState([]);
@@ -20,7 +24,6 @@ export default function KategoriList() {
     nama: "",
     deskripsi: "",
   });
-  const [alert, setAlert] = useState(null);
 
   const handleEdit = (id) => {
     const kategoriToEdit = kategori.find((k) => k.id === id);
@@ -44,9 +47,14 @@ export default function KategoriList() {
   const handleSaveEdit = async () => {
     try {
       await updateKategori(editKategori, editData);
-      setAlert({
-        color: "green",
-        message: "Kategori berhasil diperbarui",
+
+      Swal.fire({
+        icon: "success",
+        title: "Berhasil!",
+        text: "Kategori berhasil diperbarui",
+        confirmButtonColor: "#10b981",
+        timer: 1500,
+        timerProgressBar: true,
       });
 
       // Refresh data
@@ -56,10 +64,14 @@ export default function KategoriList() {
       // Reset form
       setEditKategori(null);
       setEditData({ nama: "", deskripsi: "" });
-    } catch {
-      setAlert({
-        color: "red",
-        message: "Gagal memperbarui kategori",
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Gagal Memperbarui",
+        text:
+          error.response?.data?.error ||
+          "Terjadi kesalahan saat memperbarui kategori",
+        confirmButtonColor: "#ef4444",
       });
     }
   };
@@ -67,6 +79,48 @@ export default function KategoriList() {
   const handleCancelEdit = () => {
     setEditKategori(null);
     setEditData({ nama: "", deskripsi: "" });
+  };
+
+  const handleDelete = async (id, namaKategori) => {
+    const result = await Swal.fire({
+      title: "Hapus Kategori?",
+      text: `Apakah Anda yakin ingin menghapus kategori "${namaKategori}"?`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#ef4444",
+      cancelButtonColor: "#6b7280",
+      confirmButtonText: "Ya, Hapus!",
+      cancelButtonText: "Batal",
+      reverseButtons: true,
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await deleteKategori(id);
+
+        Swal.fire({
+          icon: "success",
+          title: "Berhasil!",
+          text: "Kategori berhasil dihapus",
+          confirmButtonColor: "#10b981",
+          timer: 1500,
+          timerProgressBar: true,
+        });
+
+        // Refresh data setelah hapus
+        const data = await getAllKategori();
+        setKategori(data);
+      } catch (error) {
+        Swal.fire({
+          icon: "error",
+          title: "Gagal Menghapus",
+          text:
+            error.response?.data?.error ||
+            "Kategori mungkin masih digunakan oleh barang",
+          confirmButtonColor: "#ef4444",
+        });
+      }
+    }
   };
 
   useEffect(() => {
@@ -88,12 +142,6 @@ export default function KategoriList() {
 
   return (
     <div className="p-6">
-      {alert && (
-        <Alert color={alert.color} className="mb-4">
-          {alert.message}
-        </Alert>
-      )}
-
       <Typography variant="h4" className="mb-4">
         Daftar Kategori
       </Typography>
@@ -172,7 +220,6 @@ export default function KategoriList() {
             <thead>
               <tr>
                 <th className="px-4 py-2">No</th>
-                <th className="px-4 py-2">ID</th>
                 <th className="px-4 py-2">Kategori Barang</th>
                 <th className="px-4 py-2">Deskripsi</th>
                 <th className="px-4 py-2">Tanggal Dibuat</th>
@@ -183,7 +230,6 @@ export default function KategoriList() {
               {kategori.map((item, index) => (
                 <tr key={item.id} className="border-t">
                   <td className="px-4 py-2">{index + 1}</td>
-                  <td className="px-4 py-2">{item.id}</td>
                   <td className="px-4 py-2">{item.nama}</td>
                   <td className="px-4 py-2">{item.deskripsi}</td>
                   <td className="px-4 py-2">{item.tanggal_buat}</td>
@@ -191,13 +237,22 @@ export default function KategoriList() {
                     <AdminOnly
                       fallback={<span className="text-gray-400">-</span>}
                     >
-                      <Button
-                        variant="text"
-                        color="blue"
-                        onClick={() => handleEdit(item.id)}
-                      >
-                        <PencilIcon className="h-5 w-5" />
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="text"
+                          color="blue"
+                          onClick={() => handleEdit(item.id)}
+                        >
+                          <PencilIcon className="h-5 w-5" />
+                        </Button>
+                        <Button
+                          variant="text"
+                          color="red"
+                          onClick={() => handleDelete(item.id, item.nama)}
+                        >
+                          <TrashIcon className="h-5 w-5" />
+                        </Button>
+                      </div>
                     </AdminOnly>
                   </td>
                 </tr>

@@ -1,4 +1,3 @@
-// pages/Register.jsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "../components/atoms/Button";
@@ -6,6 +5,7 @@ import Input from "../components/atoms/Input";
 import Label from "../components/atoms/Label";
 import FormField from "../components/molecules/FormField";
 import { register } from "../services/api";
+import Swal from "sweetalert2";
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -35,20 +35,41 @@ const Register = () => {
 
     // Basic validation
     if (!formData.username || !formData.email || !formData.password) {
-      setError("Semua field harus diisi");
       setIsLoading(false);
+
+      Swal.fire({
+        icon: "warning",
+        title: "Field Kosong",
+        text: "Semua field harus diisi",
+        confirmButtonText: "OK",
+        confirmButtonColor: "#f59e0b",
+      });
       return;
     }
 
     if (formData.password !== formData.confirmPassword) {
-      setError("Password dan konfirmasi password tidak sama");
       setIsLoading(false);
+
+      Swal.fire({
+        icon: "error",
+        title: "Password Tidak Sama",
+        text: "Password dan konfirmasi password tidak sama",
+        confirmButtonText: "OK",
+        confirmButtonColor: "#ef4444",
+      });
       return;
     }
 
     if (formData.password.length < 6) {
-      setError("Password minimal 6 karakter");
       setIsLoading(false);
+
+      Swal.fire({
+        icon: "warning",
+        title: "Password Terlalu Pendek",
+        text: "Password minimal 6 karakter",
+        confirmButtonText: "OK",
+        confirmButtonColor: "#f59e0b",
+      });
       return;
     }
 
@@ -61,12 +82,28 @@ const Register = () => {
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("user", JSON.stringify(response.data.user));
 
-      // Redirect to dashboard
-      navigate("/");
+      // Success notification
+      Swal.fire({
+        icon: "success",
+        title: "Registrasi Berhasil!",
+        text: "Akun Anda berhasil dibuat",
+        confirmButtonText: "OK",
+        confirmButtonColor: "#10b981",
+        timer: 1500,
+        timerProgressBar: true,
+      }).then(() => {
+        // Redirect to dashboard
+        navigate("/");
+      });
     } catch (error) {
-      setError(
-        error.response?.data?.error || "Registrasi gagal. Silakan coba lagi."
-      );
+      Swal.fire({
+        icon: "error",
+        title: "Registrasi Gagal",
+        text:
+          error.response?.data?.error || "Registrasi gagal. Silakan coba lagi.",
+        confirmButtonText: "OK",
+        confirmButtonColor: "#ef4444",
+      });
     } finally {
       setIsLoading(false);
     }

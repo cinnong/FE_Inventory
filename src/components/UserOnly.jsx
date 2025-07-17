@@ -1,4 +1,3 @@
-// components/UserOnly.jsx
 import { isUser } from "../utils/auth";
 
 /**

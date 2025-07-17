@@ -221,56 +221,6 @@ export default function Dashboard() {
           </AdminOnly>
         </div>
       </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <CardBody>
-            <div className="flex justify-between items-center mb-4">
-              <Typography variant="h5" color="blue-gray">
-                Peminjaman Terbaru
-              </Typography>
-              <Button variant="text" size="sm" className="text-blue-500">
-                Lihat Semua
-              </Button>
-            </div>
-            <div className="space-y-4">
-              <div className="text-center py-8">
-                <Typography
-                  variant="small"
-                  color="gray"
-                  className="font-normal"
-                >
-                  coming soon!
-                </Typography>
-              </div>
-            </div>
-          </CardBody>
-        </Card>
-
-        <Card>
-          <CardBody>
-            <div className="flex justify-between items-center mb-4">
-              <Typography variant="h5" color="blue-gray">
-                Stok Barang Menipis
-              </Typography>
-              <Button variant="text" size="sm" className="text-blue-500">
-                Lihat Semua
-              </Button>
-            </div>
-            <div className="space-y-4">
-              <div className="text-center py-8">
-                <Typography
-                  variant="small"
-                  color="gray"
-                  className="font-normal"
-                >
-                  coming soon!
-                </Typography>
-              </div>
-            </div>
-          </CardBody>
-        </Card>
-      </div>
     </div>
   );
 }

@@ -1,4 +1,3 @@
-// pages/Login.jsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "../components/atoms/Button";
@@ -6,6 +5,7 @@ import Input from "../components/atoms/Input";
 import Label from "../components/atoms/Label";
 import FormField from "../components/molecules/FormField";
 import { login } from "../services/api";
+import Swal from "sweetalert2";
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -32,8 +32,15 @@ const Login = () => {
 
     // Basic validation
     if (!formData.email || !formData.password) {
-      setError("Email dan password harus diisi");
       setIsLoading(false);
+
+      Swal.fire({
+        icon: "warning",
+        title: "Field Kosong",
+        text: "Email dan password harus diisi",
+        confirmButtonText: "OK",
+        confirmButtonColor: "#f59e0b",
+      });
       return;
     }
 
@@ -44,12 +51,27 @@ const Login = () => {
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("user", JSON.stringify(response.data.user));
 
-      // Redirect to dashboard
-      navigate("/");
+      // Success notification
+      Swal.fire({
+        icon: "success",
+        title: "Login Berhasil!",
+        text: "Selamat datang kembali",
+        confirmButtonText: "OK",
+        confirmButtonColor: "#10b981",
+        timer: 1500,
+        timerProgressBar: true,
+      }).then(() => {
+        // Redirect to dashboard
+        navigate("/");
+      });
     } catch (error) {
-      setError(
-        error.response?.data?.error || "Login gagal. Silakan coba lagi."
-      );
+      Swal.fire({
+        icon: "error",
+        title: "Login Gagal",
+        text: error.response?.data?.error || "Login gagal. Silakan coba lagi.",
+        confirmButtonText: "OK",
+        confirmButtonColor: "#ef4444",
+      });
     } finally {
       setIsLoading(false);
     }

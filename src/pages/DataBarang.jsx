@@ -9,6 +9,7 @@ import {
 } from "@material-tailwind/react";
 import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { Link, useNavigate } from "react-router-dom";
+import AdminOnly from "../components/AdminOnly";
 
 export default function DataBarang() {
   const [barang, setBarang] = useState([]);
@@ -23,20 +24,20 @@ export default function DataBarang() {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('Apakah Anda yakin ingin menghapus barang ini?')) {
+    if (window.confirm("Apakah Anda yakin ingin menghapus barang ini?")) {
       try {
         await deleteBarang(id);
         setAlert({
-          type: 'success',
-          message: 'Barang berhasil dihapus'
+          type: "success",
+          message: "Barang berhasil dihapus",
         });
         // Refresh data setelah hapus
         const data = await getAllBarang();
         setBarang(data);
-      } catch (error) {
+      } catch {
         setAlert({
-          type: 'error',
-          message: 'Gagal menghapus barang'
+          type: "error",
+          message: "Gagal menghapus barang",
         });
       }
     }
@@ -51,7 +52,7 @@ export default function DataBarang() {
       try {
         const [barangData, kategoriData] = await Promise.all([
           getAllBarang(),
-          getAllKategori()
+          getAllKategori(),
         ]);
         setBarang(barangData);
         setKategori(kategoriData);
@@ -61,7 +62,7 @@ export default function DataBarang() {
         setLoading(false);
       }
     };
-  
+
     fetchData();
   }, []);
 
@@ -81,7 +82,7 @@ export default function DataBarang() {
 
       {alert && (
         <Alert
-          color={alert.type === 'success' ? 'green' : 'red'}
+          color={alert.type === "success" ? "green" : "red"}
           className="mb-4"
         >
           {alert.message}
@@ -94,12 +95,14 @@ export default function DataBarang() {
             Total Barang: {barang.length}
           </Typography>
         </div>
-        <Link to="/barang/tambah">
-          <Button variant="gradient" color="black">
-            <span className="mr-2">+</span>
-            Tambah Barang
-          </Button>
-        </Link>
+        <AdminOnly>
+          <Link to="/barang/tambah">
+            <Button variant="gradient" color="black">
+              <span className="mr-2">+</span>
+              Tambah Barang
+            </Button>
+          </Link>
+        </AdminOnly>
       </div>
 
       <Card>
@@ -121,30 +124,37 @@ export default function DataBarang() {
                   <td className="px-4 py-2">{index + 1}</td>
                   <td className="px-4 py-2">{item.id}</td>
                   <td className="px-4 py-2">{item.nama}</td>
-                  <td className="px-4 py-2">{getKategoriNama(item.kategori_id)}</td>
+                  <td className="px-4 py-2">
+                    {getKategoriNama(item.kategori_id)}
+                  </td>
                   <td className="px-4 py-2">{item.stok}</td>
                   <td className="px-4 py-2">
                     <div className="flex gap-2">
-                      <Button 
-                        size="sm" 
-                        onClick={() => handleEdit(item.id)}
-                        variant="text" 
-                        color="blue" 
-                      >
-                        <PencilIcon className="h-5 w-5" />
-                      </Button>
-                      <Button 
-                        variant="text" 
-                        color="red" 
-                        onClick={() => handleDelete(item.id)}
-                      >
-                        <TrashIcon className="h-5 w-5" />
-                      </Button>
+                      {/* View button - tersedia untuk semua user */}
                       <Link to={`/barang/${item.id}`}>
                         <Button variant="text" color="green">
                           <span className="h-5 w-5">🔍</span>
                         </Button>
                       </Link>
+
+                      {/* Edit & Delete buttons - hanya untuk admin */}
+                      <AdminOnly>
+                        <Button
+                          size="sm"
+                          onClick={() => handleEdit(item.id)}
+                          variant="text"
+                          color="blue"
+                        >
+                          <PencilIcon className="h-5 w-5" />
+                        </Button>
+                        <Button
+                          variant="text"
+                          color="red"
+                          onClick={() => handleDelete(item.id)}
+                        >
+                          <TrashIcon className="h-5 w-5" />
+                        </Button>
+                      </AdminOnly>
                     </div>
                   </td>
                 </tr>

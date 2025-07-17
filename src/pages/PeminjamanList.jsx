@@ -1,8 +1,16 @@
 import { useEffect, useState } from "react";
 import { getAllPeminjaman, updatePeminjaman } from "../services/api";
-import { Card, CardBody, Typography, Spinner, Alert, Button } from "@material-tailwind/react";
+import {
+  Card,
+  CardBody,
+  Typography,
+  Spinner,
+  Alert,
+  Button,
+} from "@material-tailwind/react";
 import { Link } from "react-router-dom";
 import { PencilIcon } from "@heroicons/react/24/outline";
+import AdminOnly from "../components/AdminOnly";
 
 export default function PeminjamanList() {
   const [data, setData] = useState([]);
@@ -19,7 +27,7 @@ export default function PeminjamanList() {
   });
 
   const handleEdit = (id) => {
-    const peminjaman = data.find(p => p.id === id);
+    const peminjaman = data.find((p) => p.id === id);
     if (peminjaman) {
       setEdit(id);
       setForm({
@@ -29,25 +37,25 @@ export default function PeminjamanList() {
         telepon_peminjam: peminjaman.telepon_peminjam,
         jumlah: peminjaman.jumlah,
         status: peminjaman.status,
-        tanggal_pinjam: peminjaman.tanggal_pinjam
+        tanggal_pinjam: peminjaman.tanggal_pinjam,
       });
     }
   };
 
   const handleEditChange = (e) => {
     const { name, value } = e.target;
-    setForm(prev => ({
+    setForm((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
   const handleSaveEdit = async () => {
     try {
       await updatePeminjaman(form.id, form);
-      setData(prev => prev.map(p => 
-        p.id === form.id ? { ...p, ...form } : p
-      ));
+      setData((prev) =>
+        prev.map((p) => (p.id === form.id ? { ...p, ...form } : p))
+      );
       setEdit(null);
       setForm({
         id: "",
@@ -56,7 +64,7 @@ export default function PeminjamanList() {
         telepon_peminjam: "",
         jumlah: "",
         status: "",
-        tanggal_pinjam: ""
+        tanggal_pinjam: "",
       });
     } catch (error) {
       console.error("Error mengupdate peminjaman:", error);
@@ -72,7 +80,7 @@ export default function PeminjamanList() {
       telepon_peminjam: "",
       jumlah: "",
       status: "",
-      tanggal_pinjam: ""
+      tanggal_pinjam: "",
     });
   };
 
@@ -113,83 +121,95 @@ export default function PeminjamanList() {
         </Link>
       </div>
 
-      {edit && (
-        <div className="mb-4">
-          <Card>
-            <CardBody>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Nama Peminjam</label>
-                  <input
-                    type="text"
-                    name="nama_peminjam"
-                    value={form.nama_peminjam}
-                    onChange={handleEditChange}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                  />
+      <AdminOnly>
+        {edit && (
+          <div className="mb-4">
+            <Card>
+              <CardBody>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Nama Peminjam
+                    </label>
+                    <input
+                      type="text"
+                      name="nama_peminjam"
+                      value={form.nama_peminjam}
+                      onChange={handleEditChange}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Email
+                    </label>
+                    <input
+                      type="email"
+                      name="email_peminjam"
+                      value={form.email_peminjam}
+                      onChange={handleEditChange}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Telepon
+                    </label>
+                    <input
+                      type="text"
+                      name="telepon_peminjam"
+                      value={form.telepon_peminjam}
+                      onChange={handleEditChange}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Jumlah
+                    </label>
+                    <input
+                      type="number"
+                      name="jumlah"
+                      value={form.jumlah}
+                      onChange={handleEditChange}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Status
+                    </label>
+                    <select
+                      name="status"
+                      value={form.status}
+                      onChange={handleEditChange}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    >
+                      <option value="pending">Pending</option>
+                      <option value="dipinjam">Dipinjam</option>
+                      <option value="dikembalikan">Dikembalikan</option>
+                    </select>
+                  </div>
+                  <div className="flex justify-end space-x-2">
+                    <button
+                      onClick={handleCancelEdit}
+                      className="px-3 py-1 border border-red-500 text-red-500 rounded hover:bg-red-50"
+                    >
+                      Batal
+                    </button>
+                    <button
+                      onClick={handleSaveEdit}
+                      className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+                    >
+                      Simpan
+                    </button>
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Email</label>
-                  <input
-                    type="email"
-                    name="email_peminjam"
-                    value={form.email_peminjam}
-                    onChange={handleEditChange}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Telepon</label>
-                  <input
-                    type="text"
-                    name="telepon_peminjam"
-                    value={form.telepon_peminjam}
-                    onChange={handleEditChange}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Jumlah</label>
-                  <input
-                    type="number"
-                    name="jumlah"
-                    value={form.jumlah}
-                    onChange={handleEditChange}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Status</label>
-                  <select
-                    name="status"
-                    value={form.status}
-                    onChange={handleEditChange}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                  >
-                    <option value="pending">Pending</option>
-                    <option value="dipinjam">Dipinjam</option>
-                    <option value="dikembalikan">Dikembalikan</option>
-                  </select>
-                </div>
-                <div className="flex justify-end space-x-2">
-                  <button
-                    onClick={handleCancelEdit}
-                    className="px-3 py-1 border border-red-500 text-red-500 rounded hover:bg-red-50"
-                  >
-                    Batal
-                  </button>
-                  <button
-                    onClick={handleSaveEdit}
-                    className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
-                  >
-                    Simpan
-                  </button>
-                </div>
-              </div>
-            </CardBody>
-          </Card>
-        </div>
-      )}
+              </CardBody>
+            </Card>
+          </div>
+        )}
+      </AdminOnly>
 
       <Card>
         <CardBody className="overflow-x-auto">
@@ -219,12 +239,16 @@ export default function PeminjamanList() {
                   <td className="px-4 py-2">{item.status}</td>
                   <td className="px-4 py-2">{item.tanggal_pinjam}</td>
                   <td className="px-4 py-2">
-                    <button
-                      onClick={() => handleEdit(item.id)}
-                      className="px-3 py-1 border border-blue-500 text-blue-500 rounded hover:bg-blue-50"
+                    <AdminOnly
+                      fallback={<span className="text-gray-400">-</span>}
                     >
-                      <PencilIcon className="h-5 w-5" />
-                    </button>
+                      <button
+                        onClick={() => handleEdit(item.id)}
+                        className="px-3 py-1 border border-blue-500 text-blue-500 rounded hover:bg-blue-50"
+                      >
+                        <PencilIcon className="h-5 w-5" />
+                      </button>
+                    </AdminOnly>
                   </td>
                 </tr>
               ))}

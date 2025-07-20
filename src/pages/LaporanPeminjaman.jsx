@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import { getLaporanPeminjaman } from "../services/api";
-import { Card, CardBody, Typography, Spinner } from "@material-tailwind/react";
+import { Card, CardBody, Typography, Spinner, Button } from "@material-tailwind/react";
+import { ArrowDownTrayIcon } from "@heroicons/react/24/outline";
+import AdminOnly from "../components/AdminOnly";
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
 
 export default function LaporanPeminjaman() {
   const [laporan, setLaporan] = useState([]);
@@ -23,6 +27,28 @@ export default function LaporanPeminjaman() {
     );
   }
 
+  // Fungsi untuk export ke Excel
+  const handleExportExcel = () => {
+    const fileType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8";
+    const fileExtension = ".xlsx";
+    
+    const ws = XLSX.utils.json_to_sheet(laporan.map((item, index) => ({
+      No: index + 1,
+      "Nama Peminjam": item.nama_peminjam,
+      "Barang": item.barang_info?.nama,
+      "Kategori": item.kategori_info?.nama,
+      "Jumlah": item.jumlah,
+      "Status": item.status,
+      "Tanggal": item.tanggal_pinjam
+    })));
+
+    const wb = { Sheets: { 'Laporan Peminjaman': ws }, SheetNames: ['Laporan Peminjaman'] };
+    const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+    const data = new Blob([excelBuffer], { type: fileType });
+    
+    saveAs(data, "Laporan_Peminjaman" + fileExtension);
+  };
+
   return (
     <div className="p-6">
       <Typography variant="h4" className="mb-4">
@@ -35,6 +61,17 @@ export default function LaporanPeminjaman() {
             Total Laporan: {laporan.length}
           </Typography>
         </div>
+        <AdminOnly>
+          <Button
+            size="sm"
+            className="flex items-center gap-2"
+            color="green"
+            onClick={handleExportExcel}
+          >
+            <ArrowDownTrayIcon strokeWidth={2} className="h-4 w-4" />
+            Export Excel
+          </Button>
+        </AdminOnly>
       </div>
       <Card>
         <CardBody className="overflow-x-auto">

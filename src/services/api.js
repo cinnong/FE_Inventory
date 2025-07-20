@@ -145,9 +145,11 @@ export const deleteKategori = async (id) => {
   }
 };
 
-export const getAllPeminjaman = async () => {
+export const getAllPeminjaman = async (search = "") => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/peminjaman`);
+    const response = await axios.get(`${API_BASE_URL}/peminjaman`, {
+      params: { search }
+    });
     return response.data;
   } catch (error) {
     console.error("Error mengambil data peminjaman:", error);

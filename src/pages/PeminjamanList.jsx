@@ -11,9 +11,10 @@ import {
   Spinner,
   Alert,
   Button,
+  Input,
 } from "@material-tailwind/react";
 import { Link } from "react-router-dom";
-import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
+import { PencilIcon, TrashIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import AdminOnly from "../components/AdminOnly";
 import Swal from "sweetalert2";
 
@@ -21,6 +22,8 @@ export default function PeminjamanList() {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [edit, setEdit] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [noResults, setNoResults] = useState(false);
   const [form, setForm] = useState({
     id: "",
     nama_peminjam: "",
@@ -150,13 +153,67 @@ export default function PeminjamanList() {
     }
   };
 
-  useEffect(() => {
-    getAllPeminjaman()
-      .then((res) => {
+  const [allData, setAllData] = useState([]); // Menyimpan semua data asli
+
+  const ambilDataPeminjaman = async (search = "") => {
+    try {
+      setLoading(true);
+      setNoResults(false);
+      const res = await getAllPeminjaman();
+      setAllData(res); // Simpan semua data
+      
+      if (search.trim() === "") {
         setData(res);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
+      } else {
+        const searchLower = search.trim().toLowerCase();
+        const filteredData = res.filter(item => 
+          item.nama_peminjam.toLowerCase().includes(searchLower)
+        );
+        setData(filteredData);
+        if (filteredData.length === 0) {
+          setNoResults(true);
+        }
+      }
+    } catch (error) {
+      console.error("Gagal mengambil data:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Gagal mengambil data",
+        text: "Terjadi kesalahan saat mengambil data peminjaman",
+        confirmButtonColor: "#ef4444",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handler untuk pencarian real-time
+  const handleSearch = (e) => {
+    const searchValue = e.target.value;
+    setSearchTerm(searchValue);
+    
+    if (searchValue.trim() === "") {
+      setData(allData);
+      setNoResults(false);
+    } else {
+      const searchLower = searchValue.trim().toLowerCase();
+      const filteredData = allData.filter(item => 
+        item.nama_peminjam.toLowerCase().includes(searchLower)
+      );
+      setData(filteredData);
+      setNoResults(filteredData.length === 0);
+    }
+  };
+
+  // Handler untuk reset pencarian
+  const handleReset = () => {
+    setSearchTerm("");
+    setData(allData);
+    setNoResults(false);
+  };
+
+  useEffect(() => {
+    ambilDataPeminjaman();
   }, []);
 
   if (loading) {
@@ -173,18 +230,45 @@ export default function PeminjamanList() {
         Daftar Peminjaman
       </Typography>
 
-      <div className="flex justify-between items-center mb-4">
-        <div>
+      <div className="flex flex-col gap-4 mb-4">
+        <div className="flex justify-between items-center">
           <Typography variant="h5" color="blue-gray">
             Total Peminjaman: {data.length}
           </Typography>
+          <Link to="/peminjaman/tambah">
+            <Button variant="gradient" color="black">
+              <span className="mr-2">+</span>
+              Tambah Peminjaman
+            </Button>
+          </Link>
         </div>
-        <Link to="/peminjaman/tambah">
-          <Button variant="gradient" color="black">
-            <span className="mr-2">+</span>
-            Tambah Peminjaman
-          </Button>
-        </Link>
+
+        <div className="flex items-center gap-2">
+          <div className="w-72">
+            <Input
+              type="text"
+              label="Filter Nama Peminjam"
+              value={searchTerm}
+              onChange={handleSearch}
+              icon={<MagnifyingGlassIcon className="h-5 w-5" />}
+              className="!border-t-blue-gray-200 focus:!border-t-gray-900"
+              labelProps={{
+                className: "before:content-none after:content-none",
+              }}
+              placeholder="Ketik nama untuk memfilter..."
+            />
+          </div>
+          {searchTerm && (
+            <Button
+              type="button"
+              color="gray"
+              size="sm"
+              onClick={handleReset}
+            >
+              Reset
+            </Button>
+          )}
+        </div>
       </div>
 
       <AdminOnly>
@@ -278,54 +362,68 @@ export default function PeminjamanList() {
       </AdminOnly>
 
       <Card>
-        <CardBody className="overflow-x-auto">
-          <table className="table-auto w-full border text-left">
-            <thead>
-              <tr>
-                <th className="px-4 py-2">No</th>
-                <th className="px-4 py-2">Nama</th>
-                <th className="px-4 py-2">Email</th>
-                <th className="px-4 py-2">Telepon</th>
-                <th className="px-4 py-2">Jumlah</th>
-                <th className="px-4 py-2">Status</th>
-                <th className="px-4 py-2">Tanggal</th>
-                <th className="px-4 py-2">Aksi</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.map((item, index) => (
-                <tr key={item.id} className="border-t">
-                  <td className="px-4 py-2">{index + 1}</td>
-                  <td className="px-4 py-2">{item.nama_peminjam}</td>
-                  <td className="px-4 py-2">{item.email_peminjam}</td>
-                  <td className="px-4 py-2">{item.telepon_peminjam}</td>
-                  <td className="px-4 py-2">{item.jumlah}</td>
-                  <td className="px-4 py-2">{item.status}</td>
-                  <td className="px-4 py-2">{item.tanggal_pinjam}</td>
-                  <td className="px-4 py-2">
-                    <AdminOnly
-                      fallback={<span className="text-gray-400">-</span>}
-                    >
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => handleEdit(item.id)}
-                          className="px-3 py-1 border border-blue-500 text-blue-500 rounded hover:bg-blue-50"
-                        >
-                          <PencilIcon className="h-5 w-5" />
-                        </button>
-                        <button
-                          onClick={() =>
-                            handleDelete(item.id, item.nama_peminjam)
-                          }
-                          className="px-3 py-1 border border-red-500 text-red-500 rounded hover:bg-red-50"
-                        >
-                          <TrashIcon className="h-5 w-5" />
-                        </button>
-                      </div>
-                    </AdminOnly>
-                  </td>
+          <CardBody className="overflow-x-auto">
+            <table className="table-auto w-full border text-left">
+              <thead>
+                <tr>
+                  <th className="px-4 py-2">No</th>
+                  <th className="px-4 py-2">Nama</th>
+                  <th className="px-4 py-2">Email</th>
+                  <th className="px-4 py-2">Telepon</th>
+                  <th className="px-4 py-2">Jumlah</th>
+                  <th className="px-4 py-2">Status</th>
+                  <th className="px-4 py-2">Tanggal</th>
+                  <th className="px-4 py-2">Aksi</th>
                 </tr>
-              ))}
+              </thead>
+              <tbody>
+                {noResults ? (
+                  <tr>
+                    <td colSpan="8" className="px-4 py-8 text-center text-gray-500">
+                      Data peminjaman dengan nama "{searchTerm}" tidak ditemukan
+                    </td>
+                  </tr>
+                ) : data.length === 0 ? (
+                  <tr>
+                    <td colSpan="8" className="px-4 py-8 text-center text-gray-500">
+                      Belum ada data peminjaman
+                    </td>
+                  </tr>
+                ) : (
+                  data.map((item, index) => (
+                    <tr key={item.id} className="border-t">
+                      <td className="px-4 py-2">{index + 1}</td>
+                      <td className="px-4 py-2">{item.nama_peminjam}</td>
+                      <td className="px-4 py-2">{item.email_peminjam}</td>
+                      <td className="px-4 py-2">{item.telepon_peminjam}</td>
+                      <td className="px-4 py-2">{item.jumlah}</td>
+                      <td className="px-4 py-2">{item.status}</td>
+                      <td className="px-4 py-2">{item.tanggal_pinjam}</td>
+                      <td className="px-4 py-2">
+                        <AdminOnly
+                          fallback={<span className="text-gray-400">-</span>}
+                        >
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => handleEdit(item.id)}
+                              className="px-3 py-1 border border-blue-500 text-blue-500 rounded hover:bg-blue-50"
+                            >
+                              <PencilIcon className="h-5 w-5" />
+                            </button>
+                            <button
+                              onClick={() =>
+                                handleDelete(item.id, item.nama_peminjam)
+                              }
+                              className="px-3 py-1 border border-red-500 text-red-500 rounded hover:bg-red-50"
+                            >
+                              <TrashIcon className="h-5 w-5" />
+                            </button>
+                          </div>
+                        </AdminOnly>
+                      </td>
+                    </tr>
+                  ))
+                )}
             </tbody>
           </table>
         </CardBody>

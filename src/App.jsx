@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import DataBarang from "./pages/DataBarang";
 import DetailBarang from "./pages/DetailBarang";
 import KategoriList from "./pages/KategoriList";
-import MainLayout from "./layouts/MainLayout";
+import MainLayoutResponsive from "./layouts/MainLayoutResponsive";
 import PeminjamanList from "./pages/PeminjamanList";
 import LaporanPeminjaman from "./pages/LaporanPeminjaman";
 import FormTambahBarang from "./pages/FormTambahBarang";
@@ -14,118 +14,121 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Test from "./pages/Test";
 import ProtectedRoute from "./components/ProtectedRoute";
+import { SidebarProvider } from "./context/SidebarContext";
 
 function App() {
   return (
     <Router>
-      <Routes>
+      <SidebarProvider>
+        <Routes>
         {/* Public routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/test" element={<Test />} />
 
         {/* Protected routes */}
-        <Route
-          path="/"
-          element={
-            <ProtectedRoute>
-              <MainLayout>
-                <Dashboard />
-              </MainLayout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/barang"
-          element={
-            <ProtectedRoute>
-              <MainLayout>
-                <DataBarang />
-              </MainLayout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/barang/:id"
-          element={
-            <ProtectedRoute>
-              <MainLayout>
-                <DetailBarang />
-              </MainLayout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/barang/edit/:id"
-          element={
-            <ProtectedRoute>
-              <MainLayout>
-                <FormEditBarang />
-              </MainLayout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/kategori"
-          element={
-            <ProtectedRoute>
-              <MainLayout>
-                <KategoriList />
-              </MainLayout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/peminjaman"
-          element={
-            <ProtectedRoute>
-              <MainLayout>
-                <PeminjamanList />
-              </MainLayout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/laporan"
-          element={
-            <ProtectedRoute>
-              <MainLayout>
-                <LaporanPeminjaman />
-              </MainLayout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/barang/tambah"
-          element={
-            <ProtectedRoute>
-              <MainLayout>
-                <FormTambahBarang />
-              </MainLayout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/kategori/tambah"
-          element={
-            <ProtectedRoute>
-              <MainLayout>
-                <FormTambahKategori />
-              </MainLayout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/peminjaman/tambah"
-          element={
-            <ProtectedRoute>
-              <MainLayout>
-                <FormTambahPeminjaman />
-              </MainLayout>
-            </ProtectedRoute>
-          }
-        />
+            <Route
+              path="/"
+              element={
+                <ProtectedRoute>
+                  <MainLayoutResponsive>
+                    <Dashboard />
+                  </MainLayoutResponsive>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/barang"
+              element={
+                <ProtectedRoute>
+                  <MainLayoutResponsive>
+                    <DataBarang />
+                  </MainLayoutResponsive>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/barang/:id"
+              element={
+                <ProtectedRoute>
+                  <MainLayoutResponsive>
+                    <DetailBarang />
+                  </MainLayoutResponsive>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/barang/edit/:id"
+              element={
+                <ProtectedRoute>
+                  <MainLayoutResponsive>
+                    <FormEditBarang />
+                  </MainLayoutResponsive>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/kategori"
+              element={
+                <ProtectedRoute>
+                  <MainLayoutResponsive>
+                    <KategoriList />
+                  </MainLayoutResponsive>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/peminjaman"
+              element={
+                <ProtectedRoute>
+                  <MainLayoutResponsive>
+                    <PeminjamanList />
+                  </MainLayoutResponsive>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/laporan"
+              element={
+                <ProtectedRoute>
+                  <MainLayoutResponsive>
+                    <LaporanPeminjaman />
+                  </MainLayoutResponsive>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/barang/tambah"
+              element={
+                <ProtectedRoute>
+                  <MainLayoutResponsive>
+                    <FormTambahBarang />
+                  </MainLayoutResponsive>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/kategori/tambah"
+              element={
+                <ProtectedRoute>
+                  <MainLayoutResponsive>
+                    <FormTambahKategori />
+                  </MainLayoutResponsive>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/peminjaman/tambah"
+              element={
+                <ProtectedRoute>
+                  <MainLayoutResponsive>
+                    <FormTambahPeminjaman />
+                  </MainLayoutResponsive>
+                </ProtectedRoute>
+              }
+            />
       </Routes>
+      </SidebarProvider>
     </Router>
   );
 }

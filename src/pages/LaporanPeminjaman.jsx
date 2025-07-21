@@ -74,33 +74,35 @@ export default function LaporanPeminjaman() {
         </AdminOnly>
       </div>
       <Card>
-        <CardBody className="overflow-x-auto">
-          <table className="table-auto w-full border text-left">
-            <thead>
-              <tr>
-                <th className="px-4 py-2">No</th>
-                <th className="px-4 py-2">Nama Peminjam</th>
-                <th className="px-4 py-2">Barang</th>
-                <th className="px-4 py-2">Kategori</th>
-                <th className="px-4 py-2">Jumlah</th>
-                <th className="px-4 py-2">Status</th>
-                <th className="px-4 py-2">Tanggal</th>
-              </tr>
-            </thead>
-            <tbody>
-              {laporan.map((item, index) => (
-                <tr key={index} className="border-t">
-                  <td className="px-4 py-2">{index + 1}</td>
-                  <td className="px-4 py-2">{item.nama_peminjam}</td>
-                  <td className="px-4 py-2">{item.barang_info?.nama}</td>
-                  <td className="px-4 py-2">{item.kategori_info?.nama}</td>
-                  <td className="px-4 py-2">{item.jumlah}</td>
-                  <td className="px-4 py-2">{item.status}</td>
-                  <td className="px-4 py-2">{item.tanggal_pinjam}</td>
+        <CardBody>
+          <div className="overflow-x-auto overflow-y-auto h-lvh">
+            <table className="table-auto w-full border text-left">
+              <thead>
+                <tr>
+                  <th className="px-4 py-2">No</th>
+                  <th className="px-4 py-2">Nama Peminjam</th>
+                  <th className="px-4 py-2">Barang</th>
+                  <th className="px-4 py-2">Kategori</th>
+                  <th className="px-4 py-2">Jumlah</th>
+                  <th className="px-4 py-2">Status</th>
+                  <th className="px-4 py-2">Tanggal</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {laporan.map((item, index) => (
+                  <tr key={index} className="border-t">
+                    <td className="px-4 py-2">{index + 1}</td>
+                    <td className="px-4 py-2">{item.nama_peminjam}</td>
+                    <td className="px-4 py-2">{item.barang_info?.nama}</td>
+                    <td className="px-4 py-2">{item.kategori_info?.nama}</td>
+                    <td className="px-4 py-2">{item.jumlah}</td>
+                    <td className="px-4 py-2">{item.status}</td>
+                    <td className="px-4 py-2">{item.tanggal_pinjam}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </CardBody>
       </Card>
     </div>

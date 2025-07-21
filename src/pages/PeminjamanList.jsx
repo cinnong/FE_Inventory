@@ -362,7 +362,8 @@ export default function PeminjamanList() {
       </AdminOnly>
 
       <Card>
-          <CardBody className="overflow-x-auto">
+        <CardBody>
+          <div className="overflow-x-auto overflow-y-auto h-lvh">
             <table className="table-auto w-full border text-left">
               <thead>
                 <tr>
@@ -424,8 +425,9 @@ export default function PeminjamanList() {
                     </tr>
                   ))
                 )}
-            </tbody>
-          </table>
+              </tbody>
+            </table>
+          </div>
         </CardBody>
       </Card>
     </div>

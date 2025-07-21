@@ -106,59 +106,61 @@ export default function DataBarang() {
       </div>
 
       <Card>
-        <CardBody className="overflow-x-auto">
-          <table className="table-auto w-full border text-left">
-            <thead>
-              <tr>
-                <th className="px-4 py-2">No</th>
-                <th className="px-4 py-2">Nama</th>
-                <th className="px-4 py-2">Kategori</th>
-                <th className="px-4 py-2">Stok</th>
-                <th className="px-4 py-2">Aksi</th>
-              </tr>
-            </thead>
-            <tbody>
-              {barang.map((item, index) => (
-                <tr key={item.id} className="border-t">
-                  <td className="px-4 py-2">{index + 1}</td>
-                  <td className="px-4 py-2">{item.nama}</td>
-                  <td className="px-4 py-2">
-                    {getKategoriNama(item.kategori_id)}
-                  </td>
-                  <td className="px-4 py-2">{item.stok}</td>
-                  <td className="px-4 py-2">
-                    <div className="flex gap-2">
-                      {/* View button - tersedia untuk semua user */}
-                      <Link to={`/barang/${item.id}`}>
-                        <Button variant="text" color="green">
-                          <span className="h-5 w-5">🔍</span>
-                        </Button>
-                      </Link>
-
-                      {/* Edit & Delete buttons - hanya untuk admin */}
-                      <AdminOnly>
-                        <Button
-                          size="sm"
-                          onClick={() => handleEdit(item.id)}
-                          variant="text"
-                          color="blue"
-                        >
-                          <PencilIcon className="h-5 w-5" />
-                        </Button>
-                        <Button
-                          variant="text"
-                          color="red"
-                          onClick={() => handleDelete(item.id)}
-                        >
-                          <TrashIcon className="h-5 w-5" />
-                        </Button>
-                      </AdminOnly>
-                    </div>
-                  </td>
+        <CardBody>
+          <div className="overflow-x-auto overflow-y-auto h-lvh">
+            <table className="table-auto w-full border text-left">
+              <thead>
+                <tr>
+                  <th className="px-4 py-2">No</th>
+                  <th className="px-4 py-2">Nama</th>
+                  <th className="px-4 py-2">Kategori</th>
+                  <th className="px-4 py-2">Stok</th>
+                  <th className="px-4 py-2">Aksi</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {barang.map((item, index) => (
+                  <tr key={item.id} className="border-t">
+                    <td className="px-4 py-2">{index + 1}</td>
+                    <td className="px-4 py-2">{item.nama}</td>
+                    <td className="px-4 py-2">
+                      {getKategoriNama(item.kategori_id)}
+                    </td>
+                    <td className="px-4 py-2">{item.stok}</td>
+                    <td className="px-4 py-2">
+                      <div className="flex gap-2">
+                        {/* View button - tersedia untuk semua user */}
+                        <Link to={`/barang/${item.id}`}>
+                          <Button variant="text" color="green">
+                            <span className="h-5 w-5">🔍</span>
+                          </Button>
+                        </Link>
+
+                        {/* Edit & Delete buttons - hanya untuk admin */}
+                        <AdminOnly>
+                          <Button
+                            size="sm"
+                            onClick={() => handleEdit(item.id)}
+                            variant="text"
+                            color="blue"
+                          >
+                            <PencilIcon className="h-5 w-5" />
+                          </Button>
+                          <Button
+                            variant="text"
+                            color="red"
+                            onClick={() => handleDelete(item.id)}
+                          >
+                            <TrashIcon className="h-5 w-5" />
+                          </Button>
+                        </AdminOnly>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </CardBody>
       </Card>
     </div>

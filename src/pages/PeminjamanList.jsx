@@ -62,6 +62,13 @@ export default function PeminjamanList() {
     status: "",
     tanggal_pinjam: "",
   });
+  const [formError, setFormError] = useState({
+    nama_peminjam: "",
+    email_peminjam: "",
+    telepon_peminjam: "",
+    jumlah: "",
+    status: "",
+  });
 
   const handleEdit = (id) => {
     const peminjaman = data.find((p) => p.id === id);
@@ -76,6 +83,23 @@ export default function PeminjamanList() {
         status: peminjaman.status,
         tanggal_pinjam: peminjaman.tanggal_pinjam,
       });
+      // Jalankan validasi otomatis pada semua field
+      setFormError({
+        nama_peminjam: !peminjaman.nama_peminjam?.trim()
+          ? "Nama peminjam wajib diisi"
+          : "",
+        email_peminjam: !peminjaman.email_peminjam?.trim()
+          ? "Email wajib diisi"
+          : "",
+        telepon_peminjam: !peminjaman.telepon_peminjam?.trim()
+          ? "Telepon wajib diisi"
+          : "",
+        jumlah:
+          !peminjaman.jumlah || Number(peminjaman.jumlah) <= 0
+            ? "Jumlah harus lebih dari 0"
+            : "",
+        status: !peminjaman.status?.trim() ? "Status wajib diisi" : "",
+      });
     }
   };
 
@@ -85,9 +109,37 @@ export default function PeminjamanList() {
       ...prev,
       [name]: value,
     }));
+    // Inline validation per field
+    setFormError((prev) => {
+      let errorMsg = "";
+      if (name === "nama_peminjam" && !value.trim())
+        errorMsg = "Nama peminjam wajib diisi";
+      if (name === "email_peminjam" && !value.trim())
+        errorMsg = "Email wajib diisi";
+      if (name === "telepon_peminjam" && !value.trim())
+        errorMsg = "Telepon wajib diisi";
+      if (name === "jumlah" && (!value || Number(value) <= 0))
+        errorMsg = "Jumlah harus lebih dari 0";
+      if (name === "status" && !value.trim()) errorMsg = "Status wajib diisi";
+      return {
+        ...prev,
+        [name]: errorMsg,
+      };
+    });
   };
 
   const handleSaveEdit = async () => {
+    // Cek jika masih ada error di formError atau field kosong
+    const hasError = Object.values(formError).some((v) => v);
+    const hasEmpty = [
+      form.nama_peminjam,
+      form.email_peminjam,
+      form.telepon_peminjam,
+      form.jumlah,
+      form.status,
+    ].some((v) => !v || (typeof v === "string" && !v.trim()));
+    if (hasError || hasEmpty) return;
+
     try {
       // Cari data lama
       const old = data.find((p) => p.id === form.id);
@@ -121,7 +173,7 @@ export default function PeminjamanList() {
       });
 
       // Fetch ulang data dari backend agar sinkron
-      ambilDataPeminjaman(searchTerm, statusFilter);
+      ambilDataPeminjaman(searchTerm, statusFilter, barangFilter);
       setEdit(null);
       setForm({
         id: "",
@@ -131,6 +183,13 @@ export default function PeminjamanList() {
         jumlah: "",
         status: "",
         tanggal_pinjam: "",
+      });
+      setFormError({
+        nama_peminjam: "",
+        email_peminjam: "",
+        telepon_peminjam: "",
+        jumlah: "",
+        status: "",
       });
     } catch (error) {
       console.error("Error mengupdate peminjaman:", error);
@@ -391,6 +450,11 @@ export default function PeminjamanList() {
                       onChange={handleEditChange}
                       className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                     />
+                    {formError.nama_peminjam && (
+                      <p className="text-red-500 text-xs mt-1">
+                        {formError.nama_peminjam}
+                      </p>
+                    )}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700">
@@ -403,6 +467,11 @@ export default function PeminjamanList() {
                       onChange={handleEditChange}
                       className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                     />
+                    {formError.email_peminjam && (
+                      <p className="text-red-500 text-xs mt-1">
+                        {formError.email_peminjam}
+                      </p>
+                    )}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700">
@@ -415,6 +484,11 @@ export default function PeminjamanList() {
                       onChange={handleEditChange}
                       className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                     />
+                    {formError.telepon_peminjam && (
+                      <p className="text-red-500 text-xs mt-1">
+                        {formError.telepon_peminjam}
+                      </p>
+                    )}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700">
@@ -427,6 +501,11 @@ export default function PeminjamanList() {
                       onChange={handleEditChange}
                       className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                     />
+                    {formError.jumlah && (
+                      <p className="text-red-500 text-xs mt-1">
+                        {formError.jumlah}
+                      </p>
+                    )}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700">
@@ -441,6 +520,11 @@ export default function PeminjamanList() {
                       <option value="dipinjam">Dipinjam</option>
                       <option value="dikembalikan">Dikembalikan</option>
                     </select>
+                    {formError.status && (
+                      <p className="text-red-500 text-xs mt-1">
+                        {formError.status}
+                      </p>
+                    )}
                   </div>
                   <div className="flex justify-end space-x-2">
                     <button

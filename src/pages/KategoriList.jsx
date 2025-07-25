@@ -25,6 +25,10 @@ export default function KategoriList() {
     nama: "",
     deskripsi: "",
   });
+  const [editError, setEditError] = useState({
+    nama: "",
+    deskripsi: "",
+  });
 
   const handleEdit = (id) => {
     const kategoriToEdit = kategori.find((k) => k.id === id);
@@ -33,6 +37,12 @@ export default function KategoriList() {
       setEditData({
         nama: kategoriToEdit.nama,
         deskripsi: kategoriToEdit.deskripsi,
+      });
+      setEditError({
+        nama: !kategoriToEdit.nama?.trim() ? "Nama kategori wajib diisi" : "",
+        deskripsi: !kategoriToEdit.deskripsi?.trim()
+          ? "Deskripsi wajib diisi"
+          : "",
       });
     }
   };
@@ -43,9 +53,29 @@ export default function KategoriList() {
       ...prev,
       [name]: value,
     }));
+    // Inline validation per field
+    setEditError((prev) => {
+      let errorMsg = "";
+      if (name === "nama" && !value.trim())
+        errorMsg = "Nama kategori wajib diisi";
+      if (name === "deskripsi" && !value.trim())
+        errorMsg = "Deskripsi wajib diisi";
+      return {
+        ...prev,
+        [name]: errorMsg,
+      };
+    });
   };
 
   const handleSaveEdit = async () => {
+    // Cek error dan field kosong
+    const errors = {
+      nama: !editData.nama.trim() ? "Nama kategori wajib diisi" : "",
+      deskripsi: !editData.deskripsi.trim() ? "Deskripsi wajib diisi" : "",
+    };
+    setEditError(errors);
+    if (Object.values(errors).some((v) => v)) return;
+
     try {
       await updateKategori(editKategori, editData);
 
@@ -65,6 +95,7 @@ export default function KategoriList() {
       // Reset form
       setEditKategori(null);
       setEditData({ nama: "", deskripsi: "" });
+      setEditError({ nama: "", deskripsi: "" });
     } catch (error) {
       Swal.fire({
         icon: "error",
@@ -180,6 +211,11 @@ export default function KategoriList() {
                       onChange={handleEditChange}
                       className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                     />
+                    {editError.nama && (
+                      <p className="text-red-500 text-xs mt-1">
+                        {editError.nama}
+                      </p>
+                    )}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700">
@@ -191,6 +227,11 @@ export default function KategoriList() {
                       onChange={handleEditChange}
                       className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                     />
+                    {editError.deskripsi && (
+                      <p className="text-red-500 text-xs mt-1">
+                        {editError.deskripsi}
+                      </p>
+                    )}
                   </div>
                   <div className="flex justify-end space-x-2">
                     <Button

@@ -81,7 +81,9 @@ export default function FormTambahPeminjaman() {
           error = "Jumlah harus berupa angka bulat";
         } else {
           // Validasi stok barang
-          const selectedBarang = barangList.find(barang => barang.id === form.barang_id);
+          const selectedBarang = barangList.find(
+            (barang) => barang.id === form.barang_id
+          );
           if (selectedBarang && Number(value) > selectedBarang.stok) {
             error = `Jumlah melebihi stok yang tersedia (${selectedBarang.stok})`;
           }
@@ -129,7 +131,9 @@ export default function FormTambahPeminjaman() {
     });
 
     // Validasi khusus stok sebelum submit
-    const selectedBarang = barangList.find(barang => barang.id === form.barang_id);
+    const selectedBarang = barangList.find(
+      (barang) => barang.id === form.barang_id
+    );
     if (selectedBarang && parseInt(form.jumlah) > selectedBarang.stok) {
       newErrors.jumlah = `Jumlah melebihi stok yang tersedia (${selectedBarang.stok})`;
     }
@@ -139,12 +143,14 @@ export default function FormTambahPeminjaman() {
       setIsLoading(false);
 
       // Pesan error spesifik untuk stok
-      const stokError = newErrors.jumlah && newErrors.jumlah.includes('stok');
-      
+      const stokError = newErrors.jumlah && newErrors.jumlah.includes("stok");
+
       Swal.fire({
         icon: "error",
         title: stokError ? "Stok Tidak Mencukupi" : "Validasi Gagal",
-        text: stokError ? newErrors.jumlah : "Mohon perbaiki field yang bermasalah",
+        text: stokError
+          ? newErrors.jumlah
+          : "Mohon perbaiki field yang bermasalah",
         confirmButtonText: "OK",
         confirmButtonColor: "#ef4444",
       });
@@ -173,14 +179,18 @@ export default function FormTambahPeminjaman() {
     } catch (err) {
       console.error("Error:", err.response?.data || err.message);
 
-      const errorMessage = err.response?.data?.message || "Gagal tambah peminjaman.";
-      const isStockError = errorMessage.toLowerCase().includes('stok') || 
-                          errorMessage.toLowerCase().includes('stock') ||
-                          errorMessage.toLowerCase().includes('tersedia');
+      const errorMessage =
+        err.response?.data?.message || "Gagal tambah peminjaman.";
+      const isStockError =
+        errorMessage.toLowerCase().includes("stok") ||
+        errorMessage.toLowerCase().includes("stock") ||
+        errorMessage.toLowerCase().includes("tersedia");
 
       Swal.fire({
         icon: "error",
-        title: isStockError ? "Stok Tidak Mencukupi" : "Gagal Tambah Peminjaman",
+        title: isStockError
+          ? "Stok Tidak Mencukupi"
+          : "Gagal Tambah Peminjaman",
         text: errorMessage,
         confirmButtonText: "OK",
         confirmButtonColor: "#ef4444",
@@ -201,7 +211,7 @@ export default function FormTambahPeminjaman() {
           <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
             <p className="text-sm text-blue-700">
               <strong>Info:</strong> Nama dan email diisi otomatis dari profil
-              Anda. Hanya admin yang bisa mengubah data peminjam.
+              Anda. 
             </p>
           </div>
         )}
@@ -285,20 +295,26 @@ export default function FormTambahPeminjaman() {
           error={errors.jumlah}
         />
 
-        {/* Status */}
+        {/* Status - Hanya admin yang bisa mengubah status */}
         <div className="mb-4">
           <label className="block mb-1 text-sm font-medium text-gray-700">
             Status
           </label>
-          <select
-            name="status"
-            value={form.status}
-            onChange={handleChange}
-            className="border rounded-md px-3 py-2 w-full"
-          >
-            <option value="dipinjam">Dipinjam</option>
-            <option value="dikembalikan">Dikembalikan</option>
-          </select>
+          {isUserAdmin ? (
+            <select
+              name="status"
+              value={form.status}
+              onChange={handleChange}
+              className="border rounded-md px-3 py-2 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
+            >
+              <option value="dipinjam">Dipinjam</option>
+              <option value="dikembalikan">Dikembalikan</option>
+            </select>
+          ) : (
+            <div className="border rounded-md px-3 py-2 w-full bg-gray-50 text-gray-700">
+              Dipinjam (otomatis)
+            </div>
+          )}
         </div>
 
         <Button type="submit" disabled={isLoading}>

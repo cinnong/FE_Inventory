@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import {
   getAllPeminjaman,
   updatePeminjaman,
@@ -14,9 +14,14 @@ import {
   Input,
 } from "@material-tailwind/react";
 import { Link } from "react-router-dom";
-import { PencilIcon, TrashIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
+import {
+  PencilIcon,
+  TrashIcon,
+  MagnifyingGlassIcon,
+} from "@heroicons/react/24/outline";
 import AdminOnly from "../components/AdminOnly";
 import Swal from "sweetalert2";
+import { getUserDisplayInfo, isAdmin } from "../utils/auth";
 
 export default function PeminjamanList() {
   const [data, setData] = useState([]);
@@ -24,6 +29,12 @@ export default function PeminjamanList() {
   const [edit, setEdit] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [noResults, setNoResults] = useState(false);
+  const [allData, setAllData] = useState([]); // Menyimpan semua data asli
+
+  // Get user info - menggunakan useMemo untuk mencegah re-render berulang
+  const userInfo = useMemo(() => getUserDisplayInfo(), []);
+  const isUserAdmin = useMemo(() => isAdmin(), []);
+
   const [form, setForm] = useState({
     id: "",
     nama_peminjam: "",
@@ -153,51 +164,62 @@ export default function PeminjamanList() {
     }
   };
 
-  const [allData, setAllData] = useState([]); // Menyimpan semua data asli
+  const ambilDataPeminjaman = useCallback(
+    async (search = "") => {
+      try {
+        setLoading(true);
+        setNoResults(false);
+        const res = await getAllPeminjaman();
 
-  const ambilDataPeminjaman = async (search = "") => {
-    try {
-      setLoading(true);
-      setNoResults(false);
-      const res = await getAllPeminjaman();
-      setAllData(res); // Simpan semua data
-      
-      if (search.trim() === "") {
-        setData(res);
-      } else {
-        const searchLower = search.trim().toLowerCase();
-        const filteredData = res.filter(item => 
-          item.nama_peminjam.toLowerCase().includes(searchLower)
-        );
-        setData(filteredData);
-        if (filteredData.length === 0) {
-          setNoResults(true);
+        // Filter data berdasarkan role user
+        let filteredByUser = res;
+        if (!isUserAdmin && userInfo) {
+          // User biasa hanya melihat peminjaman mereka sendiri
+          filteredByUser = res.filter(
+            (item) => item.email_peminjam === userInfo.email
+          );
         }
+
+        setAllData(filteredByUser); // Simpan data yang sudah difilter
+
+        if (search.trim() === "") {
+          setData(filteredByUser);
+        } else {
+          const searchLower = search.trim().toLowerCase();
+          const filteredData = filteredByUser.filter((item) =>
+            item.nama_peminjam.toLowerCase().includes(searchLower)
+          );
+          setData(filteredData);
+          if (filteredData.length === 0) {
+            setNoResults(true);
+          }
+        }
+      } catch (error) {
+        console.error("Gagal mengambil data:", error);
+        Swal.fire({
+          icon: "error",
+          title: "Gagal mengambil data",
+          text: "Terjadi kesalahan saat mengambil data peminjaman",
+          confirmButtonColor: "#ef4444",
+        });
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error("Gagal mengambil data:", error);
-      Swal.fire({
-        icon: "error",
-        title: "Gagal mengambil data",
-        text: "Terjadi kesalahan saat mengambil data peminjaman",
-        confirmButtonColor: "#ef4444",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+    [isUserAdmin, userInfo]
+  );
 
   // Handler untuk pencarian real-time
   const handleSearch = (e) => {
     const searchValue = e.target.value;
     setSearchTerm(searchValue);
-    
+
     if (searchValue.trim() === "") {
       setData(allData);
       setNoResults(false);
     } else {
       const searchLower = searchValue.trim().toLowerCase();
-      const filteredData = allData.filter(item => 
+      const filteredData = allData.filter((item) =>
         item.nama_peminjam.toLowerCase().includes(searchLower)
       );
       setData(filteredData);
@@ -214,7 +236,7 @@ export default function PeminjamanList() {
 
   useEffect(() => {
     ambilDataPeminjaman();
-  }, []);
+  }, [ambilDataPeminjaman]); // Sekarang menggunakan useCallback
 
   if (loading) {
     return (
@@ -227,13 +249,15 @@ export default function PeminjamanList() {
   return (
     <div className="p-6">
       <Typography variant="h4" className="mb-4">
-        Daftar Peminjaman
+        {isUserAdmin ? "Daftar Peminjaman" : "Peminjaman Saya"}
       </Typography>
 
       <div className="flex flex-col gap-4 mb-4">
         <div className="flex justify-between items-center">
           <Typography variant="h5" color="blue-gray">
-            Total Peminjaman: {data.length}
+            {isUserAdmin
+              ? `Total Peminjaman: ${data.length}`
+              : `Peminjaman Anda: ${data.length}`}
           </Typography>
           <Link to="/peminjaman/tambah">
             <Button variant="gradient" color="black">
@@ -243,32 +267,30 @@ export default function PeminjamanList() {
           </Link>
         </div>
 
-        <div className="flex items-center gap-2">
-          <div className="w-72">
-            <Input
-              type="text"
-              label="Filter Nama Peminjam"
-              value={searchTerm}
-              onChange={handleSearch}
-              icon={<MagnifyingGlassIcon className="h-5 w-5" />}
-              className="!border-t-blue-gray-200 focus:!border-t-gray-900"
-              labelProps={{
-                className: "before:content-none after:content-none",
-              }}
-              placeholder="Ketik nama untuk memfilter..."
-            />
+        {isUserAdmin && (
+          <div className="flex items-center gap-2">
+            <div className="w-72">
+              <Input
+                type="text"
+                label="Filter Nama Peminjam"
+                value={searchTerm}
+                onChange={handleSearch}
+                icon={<MagnifyingGlassIcon className="h-5 w-5" />}
+                placeholder="Ketik nama untuk memfilter..."
+              />
+            </div>
+            {searchTerm && (
+              <Button
+                type="button"
+                color="gray"
+                size="sm"
+                onClick={handleReset}
+              >
+                Reset
+              </Button>
+            )}
           </div>
-          {searchTerm && (
-            <Button
-              type="button"
-              color="gray"
-              size="sm"
-              onClick={handleReset}
-            >
-              Reset
-            </Button>
-          )}
-        </div>
+        )}
       </div>
 
       <AdminOnly>
@@ -374,20 +396,28 @@ export default function PeminjamanList() {
                   <th className="px-4 py-2">Jumlah</th>
                   <th className="px-4 py-2">Status</th>
                   <th className="px-4 py-2">Tanggal</th>
-                  <th className="px-4 py-2">Aksi</th>
+                  {isUserAdmin && <th className="px-4 py-2">Aksi</th>}
                 </tr>
               </thead>
               <tbody>
                 {noResults ? (
                   <tr>
-                    <td colSpan="8" className="px-4 py-8 text-center text-gray-500">
+                    <td
+                      colSpan="8"
+                      className="px-4 py-8 text-center text-gray-500"
+                    >
                       Data peminjaman dengan nama "{searchTerm}" tidak ditemukan
                     </td>
                   </tr>
                 ) : data.length === 0 ? (
                   <tr>
-                    <td colSpan="8" className="px-4 py-8 text-center text-gray-500">
-                      Belum ada data peminjaman
+                    <td
+                      colSpan="8"
+                      className="px-4 py-8 text-center text-gray-500"
+                    >
+                      {isUserAdmin
+                        ? "Belum ada data peminjaman"
+                        : "Anda belum memiliki peminjaman. Silakan buat peminjaman baru."}
                     </td>
                   </tr>
                 ) : (
@@ -400,10 +430,8 @@ export default function PeminjamanList() {
                       <td className="px-4 py-2">{item.jumlah}</td>
                       <td className="px-4 py-2">{item.status}</td>
                       <td className="px-4 py-2">{item.tanggal_pinjam}</td>
-                      <td className="px-4 py-2">
-                        <AdminOnly
-                          fallback={<span className="text-gray-400">-</span>}
-                        >
+                      {isUserAdmin && (
+                        <td className="px-4 py-2">
                           <div className="flex gap-2">
                             <button
                               onClick={() => handleEdit(item.id)}
@@ -420,8 +448,8 @@ export default function PeminjamanList() {
                               <TrashIcon className="h-5 w-5" />
                             </button>
                           </div>
-                        </AdminOnly>
-                      </td>
+                        </td>
+                      )}
                     </tr>
                   ))
                 )}

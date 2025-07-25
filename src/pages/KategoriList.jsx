@@ -15,6 +15,7 @@ import { Link } from "react-router-dom";
 import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
 import AdminOnly from "../components/AdminOnly";
 import Swal from "sweetalert2";
+import { isAdmin } from "../utils/auth";
 
 export default function KategoriList() {
   const [kategori, setKategori] = useState([]);
@@ -223,8 +224,8 @@ export default function KategoriList() {
                   <th className="px-4 py-2">No</th>
                   <th className="px-4 py-2">Kategori Barang</th>
                   <th className="px-4 py-2">Deskripsi</th>
-                  <th className="px-4 py-2">Tanggal Dibuat</th>
-                  <th className="px-4 py-2">Aksi</th>
+                  {isAdmin() && <th className="px-4 py-2">Tanggal Dibuat</th>}
+                  {isAdmin() && <th className="px-4 py-2">Aksi</th>}
                 </tr>
               </thead>
               <tbody>
@@ -233,11 +234,11 @@ export default function KategoriList() {
                     <td className="px-4 py-2">{index + 1}</td>
                     <td className="px-4 py-2">{item.nama}</td>
                     <td className="px-4 py-2">{item.deskripsi}</td>
-                    <td className="px-4 py-2">{item.tanggal_buat}</td>
-                    <td className="px-4 py-2">
-                      <AdminOnly
-                        fallback={<span className="text-gray-400">-</span>}
-                      >
+                    {isAdmin() && (
+                      <td className="px-4 py-2">{item.tanggal_buat}</td>
+                    )}
+                    {isAdmin() && (
+                      <td className="px-4 py-2">
                         <div className="flex gap-2">
                           <Button
                             variant="text"
@@ -254,8 +255,8 @@ export default function KategoriList() {
                             <TrashIcon className="h-5 w-5" />
                           </Button>
                         </div>
-                      </AdminOnly>
-                    </td>
+                      </td>
+                    )}
                   </tr>
                 ))}
               </tbody>

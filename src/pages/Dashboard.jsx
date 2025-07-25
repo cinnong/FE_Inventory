@@ -19,7 +19,7 @@ import {
   getAllKategori,
   getAllPeminjaman,
 } from "../services/api";
-import { getUserDisplayInfo } from "../utils/auth";
+import { getUserDisplayInfo, isAdmin } from "../utils/auth";
 import AdminOnly from "../components/AdminOnly";
 
 export default function Dashboard() {
@@ -61,7 +61,10 @@ export default function Dashboard() {
     fetchData();
   }, []);
 
-  const stats = [
+  const isUserAdmin = isAdmin();
+
+  // Stats untuk admin (semua stats)
+  const adminStats = [
     {
       title: "Total Barang",
       value: counts.totalBarang,
@@ -92,6 +95,26 @@ export default function Dashboard() {
     },
   ];
 
+  // Stats untuk user biasa (hanya barang dan kategori)
+  const userStats = [
+    {
+      title: "Total Barang",
+      value: counts.totalBarang,
+      icon: CubeIcon,
+      color: "blue",
+      link: "/barang",
+    },
+    {
+      title: "Total Kategori",
+      value: counts.totalKategori,
+      icon: TagIcon,
+      color: "green",
+      link: "/kategori",
+    },
+  ];
+
+  const stats = isUserAdmin ? adminStats : userStats;
+
   const userInfo = getUserDisplayInfo();
 
   if (loading) {
@@ -112,15 +135,6 @@ export default function Dashboard() {
           <Typography color="gray" className="text-sm">
             Selamat datang,{" "}
             <span className="font-medium">{userInfo?.username}</span>
-            <span
-              className={`ml-2 px-2 py-1 rounded-full text-xs ${
-                userInfo?.isAdmin
-                  ? "bg-red-100 text-red-800"
-                  : "bg-blue-100 text-blue-800"
-              }`}
-            >
-              {userInfo?.role?.toUpperCase()}
-            </span>
           </Typography>
         </div>
         <div className="flex items-center gap-2">

@@ -61,7 +61,7 @@ export default function DetailBarang() {
           <Typography>
             <strong>Tanggal Buat:</strong> {barang.tanggal_buat}
           </Typography>
-          <Link to="/">
+          <Link to="/barang">
             <Button className="mt-4" color="blue">
               Kembali
             </Button>

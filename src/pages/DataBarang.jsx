@@ -7,9 +7,10 @@ import {
   Button,
   Alert,
 } from "@material-tailwind/react";
-import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
+import { PencilIcon, TrashIcon, EyeIcon } from "@heroicons/react/24/outline";
 import { Link, useNavigate } from "react-router-dom";
 import AdminOnly from "../components/AdminOnly";
+import { isAdmin } from "../utils/auth";
 
 export default function DataBarang() {
   const [barang, setBarang] = useState([]);
@@ -17,6 +18,7 @@ export default function DataBarang() {
   const [alert, setAlert] = useState(null);
   const navigate = useNavigate();
   const [kategori, setKategori] = useState([]);
+  const isUserAdmin = isAdmin();
 
   const getKategoriNama = (id) => {
     const found = kategori.find((k) => k.id === id);
@@ -115,7 +117,8 @@ export default function DataBarang() {
                   <th className="px-4 py-2">Nama</th>
                   <th className="px-4 py-2">Kategori</th>
                   <th className="px-4 py-2">Stok</th>
-                  <th className="px-4 py-2">Aksi</th>
+                  {/* Hanya tampilkan kolom Aksi untuk admin */}
+                  {isUserAdmin && <th className="px-4 py-2">Aksi</th>}
                 </tr>
               </thead>
               <tbody>
@@ -127,17 +130,18 @@ export default function DataBarang() {
                       {getKategoriNama(item.kategori_id)}
                     </td>
                     <td className="px-4 py-2">{item.stok}</td>
-                    <td className="px-4 py-2">
-                      <div className="flex gap-2">
-                        {/* View button - tersedia untuk semua user */}
-                        <Link to={`/barang/${item.id}`}>
-                          <Button variant="text" color="green">
-                            <span className="h-5 w-5">🔍</span>
-                          </Button>
-                        </Link>
+                    {/* Hanya tampilkan kolom aksi untuk admin */}
+                    {isUserAdmin && (
+                      <td className="px-4 py-2">
+                        <div className="flex gap-2">
+                          {/* View button - hanya untuk admin */}
+                          <Link to={`/barang/${item.id}`}>
+                            <Button variant="text" color="green" size="sm">
+                              <EyeIcon className="h-5 w-5" />
+                            </Button>
+                          </Link>
 
-                        {/* Edit & Delete buttons - hanya untuk admin */}
-                        <AdminOnly>
+                          {/* Edit & Delete buttons - hanya untuk admin */}
                           <Button
                             size="sm"
                             onClick={() => handleEdit(item.id)}
@@ -153,9 +157,9 @@ export default function DataBarang() {
                           >
                             <TrashIcon className="h-5 w-5" />
                           </Button>
-                        </AdminOnly>
-                      </div>
-                    </td>
+                        </div>
+                      </td>
+                    )}
                   </tr>
                 ))}
               </tbody>

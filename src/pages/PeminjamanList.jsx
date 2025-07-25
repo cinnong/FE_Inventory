@@ -12,6 +12,8 @@ import {
   Alert,
   Button,
   Input,
+  Select,
+  Option,
 } from "@material-tailwind/react";
 import { Link } from "react-router-dom";
 import {
@@ -30,6 +32,7 @@ export default function PeminjamanList() {
   const [searchTerm, setSearchTerm] = useState("");
   const [noResults, setNoResults] = useState(false);
   const [allData, setAllData] = useState([]); // Menyimpan semua data asli
+  const [statusFilter, setStatusFilter] = useState(""); // Untuk dropdown status admin
 
   // Get user info - menggunakan useMemo untuk mencegah re-render berulang
   const userInfo = useMemo(() => getUserDisplayInfo(), []);
@@ -165,7 +168,7 @@ export default function PeminjamanList() {
   };
 
   const ambilDataPeminjaman = useCallback(
-    async (search = "") => {
+    async (search = "", status = "") => {
       try {
         setLoading(true);
         setNoResults(false);
@@ -180,13 +183,21 @@ export default function PeminjamanList() {
           );
         }
 
-        setAllData(filteredByUser); // Simpan data yang sudah difilter
+        // Filter status jika admin memilih status
+        let filteredByStatus = filteredByUser;
+        if (isUserAdmin && status && status !== "semua") {
+          filteredByStatus = filteredByUser.filter(
+            (item) => (item.status || "").toLowerCase() === status
+          );
+        }
+
+        setAllData(filteredByStatus); // Simpan data yang sudah difilter
 
         if (search.trim() === "") {
-          setData(filteredByUser);
+          setData(filteredByStatus);
         } else {
           const searchLower = search.trim().toLowerCase();
-          const filteredData = filteredByUser.filter((item) =>
+          const filteredData = filteredByStatus.filter((item) =>
             item.nama_peminjam.toLowerCase().includes(searchLower)
           );
           setData(filteredData);
@@ -235,8 +246,9 @@ export default function PeminjamanList() {
   };
 
   useEffect(() => {
-    ambilDataPeminjaman();
-  }, [ambilDataPeminjaman]); // Sekarang menggunakan useCallback
+    ambilDataPeminjaman(searchTerm, statusFilter);
+    // eslint-disable-next-line
+  }, [ambilDataPeminjaman, statusFilter]);
 
   if (loading) {
     return (
@@ -268,7 +280,7 @@ export default function PeminjamanList() {
         </div>
 
         {isUserAdmin && (
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col md:flex-row items-center gap-2">
             <div className="w-72">
               <Input
                 type="text"
@@ -278,6 +290,17 @@ export default function PeminjamanList() {
                 icon={<MagnifyingGlassIcon className="h-5 w-5" />}
                 placeholder="Ketik nama untuk memfilter..."
               />
+            </div>
+            <div className="w-56">
+              <Select
+                label="Filter Status"
+                value={statusFilter}
+                onChange={(val) => setStatusFilter(val)}
+              >
+                <Option value="">Semua Status</Option>
+                <Option value="dipinjam">Dipinjam</Option>
+                <Option value="dikembalikan">Dikembalikan</Option>
+              </Select>
             </div>
             {searchTerm && (
               <Button

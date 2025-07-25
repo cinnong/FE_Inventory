@@ -150,9 +150,15 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div
+        className={`grid grid-cols-1 md:grid-cols-2 ${
+          isUserAdmin ? "lg:grid-cols-4" : ""
+        } gap-6 mb-8 ${
+          !isUserAdmin ? "justify-center place-items-center" : ""
+        }`}
+      >
         {stats.map((stat, index) => (
-          <Link to={stat.link} key={index} className="block">
+          <Link to={stat.link} key={index} className="block w-full max-w-xs">
             <Card className="hover:shadow-lg transition-shadow duration-300 h-full">
               <CardBody className="p-6">
                 <div className="flex justify-between items-start">
@@ -181,11 +187,17 @@ export default function Dashboard() {
       </div>
 
       {/* Quick Actions */}
-      <div className="mb-8">
+      <div
+        className={`mb-8 ${!isUserAdmin ? "flex flex-col items-center" : ""}`}
+      >
         <Typography variant="h5" color="blue-gray" className="mb-4">
           Quick Actions
         </Typography>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div
+          className={`grid grid-cols-1 ${
+            isUserAdmin ? "md:grid-cols-3" : ""
+          } gap-4 ${!isUserAdmin ? "w-full max-w-xs" : ""}`}
+        >
           {/* Semua user bisa buat peminjaman */}
           <Link to="/peminjaman/tambah">
             <Card className="hover:shadow-lg transition-shadow duration-300 cursor-pointer">

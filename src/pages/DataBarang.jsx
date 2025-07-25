@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import Swal from "sweetalert2";
 import { getAllBarang, deleteBarang, getAllKategori } from "../services/api";
 import {
   Card,
@@ -26,23 +27,36 @@ export default function DataBarang() {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm("Apakah Anda yakin ingin menghapus barang ini?")) {
-      try {
-        await deleteBarang(id);
-        setAlert({
-          type: "success",
-          message: "Barang berhasil dihapus",
-        });
-        // Refresh data setelah hapus
-        const data = await getAllBarang();
-        setBarang(data);
-      } catch {
-        setAlert({
-          type: "error",
-          message: "Gagal menghapus barang",
-        });
+    Swal.fire({
+      title: "Yakin hapus barang ini?",
+      text: "Aksi ini tidak dapat dibatalkan!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Ya, hapus!",
+      cancelButtonText: "Batal",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await deleteBarang(id);
+          setAlert({
+            type: "success",
+            message: "Barang berhasil dihapus",
+          });
+          // Refresh data setelah hapus
+          const data = await getAllBarang();
+          setBarang(data);
+          Swal.fire("Terhapus!", "Barang berhasil dihapus.", "success");
+        } catch {
+          setAlert({
+            type: "error",
+            message: "Gagal menghapus barang",
+          });
+          Swal.fire("Gagal!", "Barang gagal dihapus.", "error");
+        }
       }
-    }
+    });
   };
 
   const handleEdit = (id) => {

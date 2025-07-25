@@ -65,8 +65,8 @@ export default function FormEditBarang() {
       case "nama":
         if (!value.trim()) {
           error = "Nama barang wajib diisi";
-        } else if (value.length < 3) {
-          error = "Nama barang minimal 3 karakter";
+        } else if (value.length < 1) {
+          error = "Nama barang minimal 1 karakter";
         }
         break;
       case "stok":

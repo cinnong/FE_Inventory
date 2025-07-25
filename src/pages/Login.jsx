@@ -62,7 +62,7 @@ const Login = () => {
         timerProgressBar: true,
       }).then(() => {
         // Redirect to dashboard
-        navigate("/");
+        navigate("/dashboard");
       });
     } catch (error) {
       Swal.fire({

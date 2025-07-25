@@ -18,7 +18,7 @@ const menu = [
   {
     label: "Dashboard",
     icon: ChartBarIcon,
-    path: "/",
+    path: "/dashboard",
     roles: ["admin", "user"],
   },
   {
@@ -62,11 +62,11 @@ export default function Sidebar() {
       }
     };
 
-    window.addEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
     handleResize();
 
     // Cleanup
-    return () => window.removeEventListener('resize', handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, [setIsSidebarOpen]);
 
   const handleLogout = () => {
@@ -110,7 +110,7 @@ export default function Sidebar() {
           fixed top-0 left-0 h-screen bg-white border-r shadow-md z-40
           w-[280px] md:w-64
           transition-all duration-300 ease-in-out transform
-          ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+          ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}
           md:translate-x-0
         `}
       >
@@ -141,9 +141,10 @@ export default function Sidebar() {
                     className={`
                       flex items-center gap-3 px-3 py-2.5 rounded-lg
                       text-sm transition-colors duration-200
-                      ${location.pathname === item.path
-                        ? "bg-indigo-100 text-indigo-700 font-medium"
-                        : "text-gray-700 hover:bg-indigo-50 hover:text-indigo-700"
+                      ${
+                        location.pathname === item.path
+                          ? "bg-indigo-100 text-indigo-700 font-medium"
+                          : "text-gray-700 hover:bg-indigo-50 hover:text-indigo-700"
                       }
                     `}
                   >
@@ -164,9 +165,10 @@ export default function Sidebar() {
               <span
                 className={`
                   inline-block px-2 py-0.5 rounded-full text-xs mt-1
-                  ${userInfo?.isAdmin
-                    ? "bg-red-100 text-red-800"
-                    : "bg-blue-100 text-blue-800"
+                  ${
+                    userInfo?.isAdmin
+                      ? "bg-red-100 text-red-800"
+                      : "bg-blue-100 text-blue-800"
                   }
                 `}
               >
@@ -192,30 +194,29 @@ export default function Sidebar() {
     </>
   );
 
-      {/* User info and logout section */}
-      <div className="border-t pt-4 mt-4">
-        <div className="mb-3 px-3">
-          <p className="font-medium text-gray-900">
-            {userInfo?.username || "User"}
-          </p>
-          <span
-            className={`inline-block px-2 py-1 rounded-full text-xs mt-1 ${
-              userInfo?.isAdmin
-                ? "bg-red-100 text-red-800"
-                : "bg-blue-100 text-blue-800"
-            }`}
-          >
-            {userInfo?.role || "user"}
-          </span>
-        </div>
+  // {/* User info and logout section */}
+  // <div className="border-t pt-4 mt-4">
+  //   <div className="mb-3 px-3">
+  //     <p className="font-medium text-gray-900">
+  //       {userInfo?.username || "User"}
+  //     </p>
+  //     <span
+  //       className={`inline-block px-2 py-1 rounded-full text-xs mt-1 ${
+  //         userInfo?.isAdmin
+  //           ? "bg-red-100 text-red-800"
+  //           : "bg-blue-100 text-blue-800"
+  //       }`}
+  //     >
+  //       {userInfo?.role || "user"}
+  //     </span>
+  //   </div>
 
-        <button
-          onClick={handleLogout}
-          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-red-100 text-red-600 hover:text-red-700 transition"
-        >
-          <ArrowRightOnRectangleIcon className="h-5 w-5" />
-          Logout
-        </button>
-      </div>
-    
+  //   <button
+  //     onClick={handleLogout}
+  //     className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-red-100 text-red-600 hover:text-red-700 transition"
+  //   >
+  //     <ArrowRightOnRectangleIcon className="h-5 w-5" />
+  //     Logout
+  //   </button>
+  // </div>
 }

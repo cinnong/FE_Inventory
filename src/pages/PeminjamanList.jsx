@@ -3,6 +3,8 @@ import {
   getAllPeminjaman,
   updatePeminjaman,
   deletePeminjaman,
+  getAllBarang,
+  updateJumlahPeminjaman,
 } from "../services/api";
 import {
   Card,
@@ -26,6 +28,10 @@ import Swal from "sweetalert2";
 import { getUserDisplayInfo, isAdmin } from "../utils/auth";
 
 export default function PeminjamanList() {
+  // Get user info - gunakan useMemo sebelum kode lain yang menggunakannya
+  const userInfo = useMemo(() => getUserDisplayInfo(), []);
+  const isUserAdmin = useMemo(() => isAdmin(), []);
+
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [edit, setEdit] = useState(null);
@@ -33,10 +39,19 @@ export default function PeminjamanList() {
   const [noResults, setNoResults] = useState(false);
   const [allData, setAllData] = useState([]); // Menyimpan semua data asli
   const [statusFilter, setStatusFilter] = useState(""); // Untuk dropdown status admin
+  const [barangFilter, setBarangFilter] = useState(""); // Untuk filter barang
+  const [barangMap, setBarangMap] = useState({}); // id -> barang
 
-  // Get user info - menggunakan useMemo untuk mencegah re-render berulang
-  const userInfo = useMemo(() => getUserDisplayInfo(), []);
-  const isUserAdmin = useMemo(() => isAdmin(), []);
+  // Ambil data barang sekali untuk semua role (admin & user)
+  useEffect(() => {
+    getAllBarang().then((barangList) => {
+      const map = {};
+      barangList.forEach((b) => {
+        map[b.id] = b;
+      });
+      setBarangMap(map);
+    });
+  }, []);
 
   const [form, setForm] = useState({
     id: "",
@@ -74,7 +89,27 @@ export default function PeminjamanList() {
 
   const handleSaveEdit = async () => {
     try {
-      await updatePeminjaman(form.id, form);
+      // Cari data lama
+      const old = data.find((p) => p.id === form.id);
+      let jumlahChanged = false;
+      let statusChanged = false;
+      if (old) {
+        jumlahChanged = String(form.jumlah) !== String(old.jumlah);
+        statusChanged = form.status !== old.status;
+      }
+
+      // Jika jumlah berubah, update jumlah via endpoint khusus
+      if (jumlahChanged) {
+        await updateJumlahPeminjaman(form.id, Number(form.jumlah));
+      }
+      // Jika status berubah, update status
+      if (statusChanged) {
+        await updatePeminjaman(form.id, { status: form.status });
+      }
+      // Jika hanya field lain yang berubah (nama, email, telepon), update via updatePeminjaman
+      if (!jumlahChanged && !statusChanged) {
+        await updatePeminjaman(form.id, form);
+      }
 
       Swal.fire({
         icon: "success",
@@ -85,9 +120,8 @@ export default function PeminjamanList() {
         timerProgressBar: true,
       });
 
-      setData((prev) =>
-        prev.map((p) => (p.id === form.id ? { ...p, ...form } : p))
-      );
+      // Fetch ulang data dari backend agar sinkron
+      ambilDataPeminjaman(searchTerm, statusFilter);
       setEdit(null);
       setForm({
         id: "",
@@ -168,7 +202,7 @@ export default function PeminjamanList() {
   };
 
   const ambilDataPeminjaman = useCallback(
-    async (search = "", status = "") => {
+    async (search = "", status = "", barang = "") => {
       try {
         setLoading(true);
         setNoResults(false);
@@ -191,13 +225,21 @@ export default function PeminjamanList() {
           );
         }
 
-        setAllData(filteredByStatus); // Simpan data yang sudah difilter
+        // Filter barang jika admin memilih barang
+        let filteredByBarang = filteredByStatus;
+        if (isUserAdmin && barang && barang !== "") {
+          filteredByBarang = filteredByStatus.filter(
+            (item) => String(item.barang_id) === String(barang)
+          );
+        }
+
+        setAllData(filteredByBarang); // Simpan data yang sudah difilter
 
         if (search.trim() === "") {
-          setData(filteredByStatus);
+          setData(filteredByBarang);
         } else {
           const searchLower = search.trim().toLowerCase();
-          const filteredData = filteredByStatus.filter((item) =>
+          const filteredData = filteredByBarang.filter((item) =>
             item.nama_peminjam.toLowerCase().includes(searchLower)
           );
           setData(filteredData);
@@ -238,17 +280,19 @@ export default function PeminjamanList() {
     }
   };
 
-  // Handler untuk reset pencarian
+  // Handler untuk reset pencarian dan filter
   const handleReset = () => {
     setSearchTerm("");
+    setStatusFilter("");
+    setBarangFilter("");
     setData(allData);
     setNoResults(false);
   };
 
   useEffect(() => {
-    ambilDataPeminjaman(searchTerm, statusFilter);
+    ambilDataPeminjaman(searchTerm, statusFilter, barangFilter);
     // eslint-disable-next-line
-  }, [ambilDataPeminjaman, statusFilter]);
+  }, [ambilDataPeminjaman, statusFilter, barangFilter]);
 
   if (loading) {
     return (
@@ -302,7 +346,21 @@ export default function PeminjamanList() {
                 <Option value="dikembalikan">Dikembalikan</Option>
               </Select>
             </div>
-            {searchTerm && (
+            <div className="w-56">
+              <Select
+                label="Filter Barang"
+                value={barangFilter}
+                onChange={(val) => setBarangFilter(val)}
+              >
+                <Option value="">Semua Barang</Option>
+                {Object.values(barangMap).map((barang) => (
+                  <Option key={barang.id} value={barang.id}>
+                    {barang.nama}
+                  </Option>
+                ))}
+              </Select>
+            </div>
+            {(searchTerm || statusFilter || barangFilter) && (
               <Button
                 type="button"
                 color="gray"
@@ -380,7 +438,6 @@ export default function PeminjamanList() {
                       onChange={handleEditChange}
                       className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                     >
-                      <option value="pending">Pending</option>
                       <option value="dipinjam">Dipinjam</option>
                       <option value="dikembalikan">Dikembalikan</option>
                     </select>
@@ -416,6 +473,7 @@ export default function PeminjamanList() {
                   <th className="px-4 py-2">Nama</th>
                   <th className="px-4 py-2">Email</th>
                   <th className="px-4 py-2">Telepon</th>
+                  <th className="px-4 py-2">Barang</th>
                   <th className="px-4 py-2">Jumlah</th>
                   <th className="px-4 py-2">Status</th>
                   <th className="px-4 py-2">Tanggal</th>
@@ -426,7 +484,7 @@ export default function PeminjamanList() {
                 {noResults ? (
                   <tr>
                     <td
-                      colSpan="8"
+                      colSpan={isUserAdmin ? 8 : 9}
                       className="px-4 py-8 text-center text-gray-500"
                     >
                       Data peminjaman dengan nama "{searchTerm}" tidak ditemukan
@@ -435,7 +493,7 @@ export default function PeminjamanList() {
                 ) : data.length === 0 ? (
                   <tr>
                     <td
-                      colSpan="8"
+                      colSpan={isUserAdmin ? 8 : 9}
                       className="px-4 py-8 text-center text-gray-500"
                     >
                       {isUserAdmin
@@ -450,6 +508,13 @@ export default function PeminjamanList() {
                       <td className="px-4 py-2">{item.nama_peminjam}</td>
                       <td className="px-4 py-2">{item.email_peminjam}</td>
                       <td className="px-4 py-2">{item.telepon_peminjam}</td>
+                      <td className="px-4 py-2">
+                        {barangMap[item.barang_id]?.nama || (
+                          <span className="italic text-gray-400">
+                            (Barang tidak ditemukan)
+                          </span>
+                        )}
+                      </td>
                       <td className="px-4 py-2">{item.jumlah}</td>
                       <td className="px-4 py-2">{item.status}</td>
                       <td className="px-4 py-2">{item.tanggal_pinjam}</td>

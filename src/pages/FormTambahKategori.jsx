@@ -22,8 +22,8 @@ export default function FormTambahKategori() {
       case "nama":
         if (!value.trim()) {
           error = "Nama kategori wajib diisi";
-        } else if (value.length < 3) {
-          error = "Nama kategori minimal 3 karakter";
+        } else if (value.length < 1) {
+          error = "Nama kategori minimal 1 karakter";
         }
         break;
       case "deskripsi":

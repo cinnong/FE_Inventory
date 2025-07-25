@@ -148,7 +148,7 @@ export const deleteKategori = async (id) => {
 export const getAllPeminjaman = async (search = "") => {
   try {
     const response = await axios.get(`${API_BASE_URL}/peminjaman`, {
-      params: { search }
+      params: { search },
     });
     return response.data;
   } catch (error) {
@@ -193,6 +193,19 @@ export const getLaporanPeminjaman = async () => {
     return response.data;
   } catch (error) {
     console.error("Gagal ambil data laporan:", error);
+    throw error;
+  }
+};
+
+export const updateJumlahPeminjaman = async (id, jumlah) => {
+  try {
+    const response = await axios.put(
+      `${API_BASE_URL}/peminjaman/${id}/jumlah`,
+      { jumlah }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error mengupdate jumlah peminjaman:", error);
     throw error;
   }
 };

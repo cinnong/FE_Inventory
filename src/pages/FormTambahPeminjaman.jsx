@@ -47,8 +47,8 @@ export default function FormTambahPeminjaman() {
       case "nama_peminjam":
         if (!value.trim()) {
           error = "Nama peminjam wajib diisi";
-        } else if (value.length < 3) {
-          error = "Nama peminjam minimal 3 karakter";
+        } else if (value.length < 1) {
+          error = "Nama peminjam minimal 1 karakter";
         }
         break;
       case "email_peminjam":

@@ -68,7 +68,7 @@ export default function FormTambahKategori() {
     }
 
     try {
-      await axios.post("http://localhost:3000/api/kategori", form);
+      await axios.post("https://beinventory-production.up.railway.app/api/kategori", form);
 
       Swal.fire({
         icon: "success",

@@ -96,7 +96,7 @@ export default function FormTambahBarang() {
     console.log("Data dikirim:", payload);
 
     try {
-      await axios.post("http://localhost:3000/api/barang", payload);
+      await axios.post("https://beinventory-production.up.railway.app/api/barang", payload);
 
       Swal.fire({
         icon: "success",

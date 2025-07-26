@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_BASE_URL = "http://localhost:3000/api";
+const API_BASE_URL = "https://beinventory-production.up.railway.app/api";
 
 // Setup axios interceptor untuk otomatis include JWT token
 axios.interceptors.request.use(

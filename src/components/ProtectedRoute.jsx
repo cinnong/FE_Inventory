@@ -1,19 +1,9 @@
-import { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 
 const ProtectedRoute = ({ children }) => {
-  const [isAuth, setIsAuth] = useState(null);
+  const token = localStorage.getItem("token");
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    setIsAuth(!!token);
-  }, []);
-
-  if (isAuth === null) {
-    return <div>Loading...</div>; // atau spinner
-  }
-
-  if (!isAuth) {
+  if (!token) {
     return <Navigate to="/login" replace />;
   }
 
